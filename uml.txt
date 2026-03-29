@@ -1,0 +1,151 @@
+@startuml
+' إعدادات التصميم لجعله مخطط قواعد بيانات احترافي
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+hide circle
+
+' ==========================================
+' الجداول (الكيانات - Entities)
+' ==========================================
+
+entity "majors" {
+  * id : integer <<PK>>
+  --
+  name : varchar
+  code : varchar
+}
+
+entity "users" {
+  * id : bigint <<PK>>
+  --
+  * student_id : varchar <<UK>>
+  first_name : varchar
+  last_name : varchar
+  * email : varchar <<UK>>
+  password : varchar
+  gender : enum(male, female)
+  date_of_birth : date
+  major_id : integer <<FK>>
+  academic_level : integer
+  role : enum(student, advisor, admin)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "skills" {
+  * id : integer <<PK>>
+  --
+  name : varchar
+  category : varchar
+}
+
+entity "user_skills" {
+  * id : bigint <<PK>>
+  --
+  user_id : bigint <<FK>>
+  skill_id : integer <<FK>>
+  proficiency_level : integer
+}
+
+entity "projects" {
+  * id : bigint <<PK>>
+  --
+  title : varchar
+  description : text
+  type : varchar
+  difficulty_level : integer
+  advisor_id : bigint <<FK>>
+  status : enum(available, taken, completed)
+}
+
+entity "project_skills" {
+  * id : bigint <<PK>>
+  --
+  project_id : bigint <<FK>>
+  skill_id : integer <<FK>>
+  weight : decimal
+}
+
+entity "teams" {
+  * id : bigint <<PK>>
+  --
+  name : varchar
+  project_id : bigint <<FK>>
+  is_approved : boolean
+}
+
+entity "team_members" {
+  * id : bigint <<PK>>
+  --
+  team_id : bigint <<FK>>
+  user_id : bigint <<FK>>
+  role_in_team : varchar
+}
+
+entity "milestones" {
+  * id : bigint <<PK>>
+  --
+  project_id : bigint <<FK>>
+  title : varchar
+  description : text
+  estimated_days : integer
+  order_sequence : integer
+}
+
+entity "risks" {
+  * id : bigint <<PK>>
+  --
+  project_id : bigint <<FK>>
+  risk_description : text
+  impact_level : enum(Low, Medium, High)
+  mitigation_plan : text
+}
+
+entity "success_estimations" {
+  * id : bigint <<PK>>
+  --
+  team_id : bigint <<FK>>
+  user_id : bigint <<FK>>
+  project_id : bigint <<FK>>
+  success_probability : decimal
+  calculated_at : timestamp
+  factors_log : json
+}
+
+' ==========================================
+' العلاقات (Relationships)
+' ==========================================
+
+' علاقة التخصص مع المستخدمين (One-to-Many)
+majors ||--o{ users : "يضم"
+
+' علاقة المستخدم مع المهارات عبر جدول وسيط (Many-to-Many)
+users ||--o{ user_skills : "يمتلك"
+skills ||--o{ user_skills : "تُسند لـ"
+
+' علاقة المشاريع (المشرف والمشروع)
+users |o--o{ projects : "يشرف على"
+
+' علاقة المشروع مع المهارات المطلوبة
+projects ||--o{ project_skills : "يتطلب"
+skills ||--o{ project_skills : "مطلوبة في"
+
+' علاقة المشاريع والفرق
+projects ||--o{ teams : "يُنفذ بواسطة"
+teams ||--o{ team_members : "يتكون من"
+users ||--o{ team_members : "عضو في"
+
+' علاقة المشروع مع مهام بيئة المحاكاة والمخاطر
+projects ||--o{ milestones : "يُقسم إلى"
+projects ||--o{ risks : "يحتوي على مخاطر"
+
+' علاقات نظام تقييم النجاح
+projects ||--o{ success_estimations : "يُقّيم بـ"
+teams |o--o{ success_estimations : "يحصل على"
+users |o--o{ success_estimations : "يحصل على"
+
+@enduml

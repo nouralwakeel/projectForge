@@ -1,0 +1,155 @@
+// ==========================================
+// ProjectForge Database Schema (DBML)
+// ==========================================
+
+// --- Enums ---
+Enum gender_enum {
+  male
+  female
+}
+
+Enum role_enum {
+  student
+  advisor
+  admin
+}
+
+Enum project_status {
+  available
+  taken
+  completed
+}
+
+Enum impact_level_enum {
+  Low
+  Medium
+  High
+}
+
+// --- 1. User Management ---
+
+Table majors {
+  id integer [primary key]
+  name varchar[note: 'اسم التخصص مثل هندسة برمجيات']
+  code varchar [note: 'رمز التخصص مثل SE']
+}
+
+Table users {
+  id bigint [primary key]
+  student_id varchar[unique, note: 'الرقم الشخصي / الجامعي']
+  first_name varchar [note: 'الاسم الأول']
+  last_name varchar [note: 'الاسم الأخير']
+  email varchar [unique]
+  password varchar
+  gender gender_enum [note: 'الجنس']
+  date_of_birth date[note: 'تاريخ الميلاد']
+  major_id integer [note: 'مفتاح أجنبي للتخصص']
+  academic_level integer [note: 'المستوى الأكاديمي']
+  role role_enum[note: 'دور المستخدم']
+  created_at timestamp
+  updated_at timestamp
+}
+
+// --- 2. Skills & Project-DNA ---
+
+Table skills {
+  id integer [primary key]
+  name varchar[note: 'اسم المهارة مثل Flutter']
+  category varchar [note: 'التصنيف مثل Frontend, AI']
+}
+
+Table user_skills {
+  id bigint [primary key]
+  user_id bigint
+  skill_id integer
+  proficiency_level integer [note: 'مستوى الإجادة من 1 إلى 5']
+}
+
+// --- 3. Projects & Matching ---
+
+Table projects {
+  id bigint [primary key]
+  title varchar [note: 'عنوان المشروع']
+  description text [note: 'وصف المشروع']
+  type varchar [note: 'نوع المشروع مثل تطبيق موبايل']
+  difficulty_level integer[note: 'مستوى الصعوبة من 1 إلى 5']
+  advisor_id bigint[note: 'المشرف الأكاديمي المقترح (Nullable)']
+  status project_status
+}
+
+Table project_skills {
+  id bigint [primary key]
+  project_id bigint
+  skill_id integer
+  weight decimal[note: 'وزن المهارة في المشروع (نسبة مئوية)']
+}
+
+// --- 4. Teams ---
+
+Table teams {
+  id bigint [primary key]
+  name varchar [note: 'اسم الفريق']
+  project_id bigint
+  is_approved boolean [note: 'حالة الموافقة على الفريق']
+}
+
+Table team_members {
+  id bigint [primary key]
+  team_id bigint
+  user_id bigint
+  role_in_team varchar [note: 'دور الطالب مثل Team Leader']
+}
+
+// --- 5. Sandbox (Milestones & Risks) ---
+
+Table milestones {
+  id bigint[primary key]
+  project_id bigint
+  title varchar [note: 'اسم المرحلة']
+  description text
+  estimated_days integer [note: 'المدة المتوقعة بالأيام']
+  order_sequence integer[note: 'الترتيب الزمني للمرحلة']
+}
+
+Table risks {
+  id bigint [primary key]
+  project_id bigint
+  risk_description text [note: 'وصف الخطر المحتمل']
+  impact_level impact_level_enum
+  mitigation_plan text [note: 'خطة تدارك الخطر']
+}
+
+// --- 6. Success Estimator ---
+
+Table success_estimations {
+  id bigint[primary key]
+  team_id bigint [note: 'التقييم لفريق (Nullable)']
+  user_id bigint [note: 'التقييم لطالب فردي (Nullable)']
+  project_id bigint
+  success_probability decimal [note: 'نسبة النجاح المئوية']
+  calculated_at timestamp [note: 'وقت إجراء التقييم']
+  factors_log json[note: 'سجل العوامل المؤثرة في النسبة']
+}
+
+// ==========================================
+// Relationships (Foreign Keys)
+// ==========================================
+
+Ref: users.major_id > majors.id
+Ref: user_skills.user_id > users.id
+Ref: user_skills.skill_id > skills.id
+
+Ref: projects.advisor_id > users.id
+Ref: project_skills.project_id > projects.id
+Ref: project_skills.skill_id > skills.id
+
+Ref: teams.project_id > projects.id
+Ref: team_members.team_id > teams.id
+Ref: team_members.user_id > users.id
+
+Ref: milestones.project_id > projects.id
+Ref: risks.project_id > projects.id
+
+Ref: success_estimations.team_id > teams.id
+Ref: success_estimations.user_id > users.id
+Ref: success_estimations.project_id > projects.id
