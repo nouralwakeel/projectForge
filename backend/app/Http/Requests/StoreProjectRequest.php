@@ -12,7 +12,7 @@ class StoreProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,13 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'type' => 'required|string',
+            'difficulty_level' => 'required|integer|min:1|max:5',
+            'skills' => 'required|array|min:1',
+            'skills.*.id' => 'required|exists:skills,id',
+            'skills.*.weight' => 'required|numeric|min:0|max:1',
         ];
     }
 }
