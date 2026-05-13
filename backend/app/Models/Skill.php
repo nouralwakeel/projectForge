@@ -8,10 +8,10 @@ class Skill extends Model
 {
     protected $fillable = ['name', 'category'];
 
-    public function users()
+    public function students()
     {
-        return $this->belongsToMany(User::class, 'user_skills')
-            ->withPivot('proficiency_level')
+        return $this->belongsToMany(Student::class, 'student_skills')
+            ->withPivot('proficiency_level', 'interest_level')
             ->withTimestamps();
     }
 

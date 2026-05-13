@@ -18,7 +18,7 @@ class MajorResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
-            'users_count' => $this->whenCounted('users'),
+            'students_count' => $this->whenCounted('students'),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }

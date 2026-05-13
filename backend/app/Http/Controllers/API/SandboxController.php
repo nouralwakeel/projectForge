@@ -45,7 +45,8 @@ class SandboxController extends Controller
 
     private function generateMilestones($project)
     {
-        $milestonesData = $this->getMilestonesTemplate($project->type);
+        $typeName = $project->type ? $project->type->name : 'default';
+        $milestonesData = $this->getMilestonesTemplate($typeName);
 
         foreach ($milestonesData as $index => $milestoneData) {
             Milestone::create([
@@ -60,7 +61,8 @@ class SandboxController extends Controller
 
     private function generateRisks($project)
     {
-        $risksData = $this->getRisksTemplate($project->type, $project->difficulty_level);
+        $typeName = $project->type ? $project->type->name : 'default';
+        $risksData = $this->getRisksTemplate($typeName, $project->difficulty_level);
 
         foreach ($risksData as $riskData) {
             Risk::create([
@@ -115,24 +117,24 @@ class SandboxController extends Controller
     {
         $baseRisks = [
             'mobile_app' => [
-                ['description' => 'تغير المتطلبات أثناء التطوير', 'impact' => 'medium', 'mitigation' => 'الالتزام بمنهجية Agile وإدارة التغيير'],
-                ['description' => 'مشاكل التوافق مع الأجهزة المختلفة', 'impact' => 'medium', 'mitigation' => 'اختبار على أجهزة متنوعة'],
-                ['description' => 'صعوبة في تكامل APIs خارجية', 'impact' => 'low', 'mitigation' => 'دراسة التوثيق جيداً واختبار مبكر'],
+                ['description' => 'تغير المتطلبات أثناء التطوير', 'impact' => 'Medium', 'mitigation' => 'الالتزام بمنهجية Agile وإدارة التغيير'],
+                ['description' => 'مشاكل التوافق مع الأجهزة المختلفة', 'impact' => 'Medium', 'mitigation' => 'اختبار على أجهزة متنوعة'],
+                ['description' => 'صعوبة في تكامل APIs خارجية', 'impact' => 'Low', 'mitigation' => 'دراسة التوثيق جيداً واختبار مبكر'],
             ],
             'web_application' => [
-                ['description' => 'مشاكل أداء الموقع', 'impact' => 'high', 'mitigation' => 'تحسين الاستعلامات واستخدام التخزين المؤقت'],
-                ['description' => 'ثغرات أمنية', 'impact' => 'high', 'mitigation' => 'مراجعة أمنية واختبار الاختراق'],
-                ['description' => 'مشاكل توافق المتصفحات', 'impact' => 'medium', 'mitigation' => 'اختبار على متصفحات متعددة'],
+                ['description' => 'مشاكل أداء الموقع', 'impact' => 'High', 'mitigation' => 'تحسين الاستعلامات واستخدام التخزين المؤقت'],
+                ['description' => 'ثغرات أمنية', 'impact' => 'High', 'mitigation' => 'مراجعة أمنية واختبار الاختراق'],
+                ['description' => 'مشاكل توافق المتصفحات', 'impact' => 'Medium', 'mitigation' => 'اختبار على متصفحات متعددة'],
             ],
             'ai_system' => [
-                ['description' => 'جودة البيانات غير كافية', 'impact' => 'high', 'mitigation' => 'تنظيف البيانات واستخدام مصادر موثوقة'],
-                ['description' => 'أداء النموذج أقل من المتوقع', 'impact' => 'medium', 'mitigation' => 'تجربة خوارزميات مختلفة وتحسين المعاملات'],
-                ['description' => 'صعوبة تفسير النتائج', 'impact' => 'low', 'mitigation' => 'توثيق واضح وواجهة سهلة'],
+                ['description' => 'جودة البيانات غير كافية', 'impact' => 'High', 'mitigation' => 'تنظيف البيانات واستخدام مصادر موثوقة'],
+                ['description' => 'أداء النموذج أقل من المتوقع', 'impact' => 'Medium', 'mitigation' => 'تجربة خوارزميات مختلفة وتحسين المعاملات'],
+                ['description' => 'صعوبة تفسير النتائج', 'impact' => 'Low', 'mitigation' => 'توثيق واضح وواجهة سهلة'],
             ],
             'default' => [
-                ['description' => 'تأخر في الجدول الزمني', 'impact' => 'medium', 'mitigation' => 'وضع مخزون زمني ومتابعة مستمرة'],
-                ['description' => 'نقص الخبرات المطلوبة', 'impact' => 'medium', 'mitigation' => 'التدريب المبكر والبحث عن موارد بديلة'],
-                ['description' => 'مشاكل تقنية غير متوقعة', 'impact' => 'low', 'mitigation' => 'وضع خطط بديلة'],
+                ['description' => 'تأخر في الجدول الزمني', 'impact' => 'Medium', 'mitigation' => 'وضع مخزون زمني ومتابعة مستمرة'],
+                ['description' => 'نقص الخبرات المطلوبة', 'impact' => 'Medium', 'mitigation' => 'التدريب المبكر والبحث عن موارد بديلة'],
+                ['description' => 'مشاكل تقنية غير متوقعة', 'impact' => 'Low', 'mitigation' => 'وضع خطط بديلة'],
             ]
         ];
 
@@ -141,7 +143,7 @@ class SandboxController extends Controller
         if ($difficultyLevel >= 4) {
             $risks[] = [
                 'description' => 'تعقيد المشروع قد يؤدي لتأخير كبير',
-                'impact' => 'high',
+                'impact' => 'High',
                 'mitigation' => 'تقسيم المشروع لأجزاء أصغر وإدارة دقيقة'
             ];
         }
@@ -149,7 +151,7 @@ class SandboxController extends Controller
         if ($difficultyLevel >= 5) {
             $risks[] = [
                 'description' => 'احتمالية عدم إكمال المشروع بالكامل',
-                'impact' => 'high',
+                'impact' => 'High',
                 'mitigation' => 'تحديد MVP والتركيز على الأساسيات'
             ];
         }

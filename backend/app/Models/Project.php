@@ -9,9 +9,9 @@ class Project extends Model
     protected $fillable = [
         'title',
         'description',
-        'type',
+        'type_id',
         'difficulty_level',
-        'advisor_id',
+        'supervisor_id',
         'status',
     ];
 
@@ -19,9 +19,14 @@ class Project extends Model
         'difficulty_level' => 'integer',
     ];
 
-    public function advisor()
+    public function supervisor()
     {
-        return $this->belongsTo(User::class, 'advisor_id');
+        return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(ProjectType::class, 'type_id');
     }
 
     public function skills()

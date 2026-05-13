@@ -4,21 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserSkill extends Model
+class StudentSkill extends Model
 {
+    protected $table = 'student_skills';
+
     protected $fillable = [
-        'user_id',
+        'student_id',
         'skill_id',
         'proficiency_level',
+        'interest_level',
     ];
 
     protected $casts = [
         'proficiency_level' => 'integer',
+        'interest_level' => 'integer',
     ];
 
-    public function user()
+    public function student()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Student::class);
     }
 
     public function skill()

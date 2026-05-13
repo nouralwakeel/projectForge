@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\HealthController;
 use App\Http\Controllers\API\MajorController;
 use App\Http\Controllers\API\ProjectController;
 use App\Http\Controllers\API\RecommendationController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+    Route::get('/health/db', [HealthController::class, 'checkDb']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/majors', [MajorController::class, 'index']);

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\StudentSkill;
 use App\Models\SuccessEstimation;
 use App\Models\Team;
-use App\Models\UserSkill;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -15,6 +15,7 @@ class SuccessEstimationController extends Controller
     public function estimate($projectId)
     {
         $user = auth()->user();
+        $student = $user->student;
         $project = Project::with('skills')->find($projectId);
 
         if (!$project) {
@@ -24,11 +25,18 @@ class SuccessEstimationController extends Controller
             ], 404);
         }
 
-        $userSkills = UserSkill::where('user_id', $user->id)
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student profile not found'
+            ], 404);
+        }
+
+        $studentSkills = StudentSkill::where('student_id', $student->id)
             ->get()
             ->keyBy('skill_id');
 
-        $skillCoverage = $this->calculateSkillCoverage($project, $userSkills);
+        $skillCoverage = $this->calculateSkillCoverage($project, $studentSkills);
         $difficultyFactor = (6 - $project->difficulty_level) / 5;
         $teamBalance = 1.0;
 
@@ -37,7 +45,7 @@ class SuccessEstimationController extends Controller
         $successProbability = min($successProbability, 1.0);
 
         $estimation = SuccessEstimation::create([
-            'user_id' => $user->id,
+            'student_id' => $student->id,
             'project_id' => $project->id,
             'success_probability' => $successProbability,
             'calculated_at' => Carbon::now(),
@@ -65,7 +73,7 @@ class SuccessEstimationController extends Controller
 
     public function estimateTeam($teamId)
     {
-        $team = Team::with(['members.user.skills', 'project.skills'])->find($teamId);
+        $team = Team::with(['members.student.skills', 'project.skills'])->find($teamId);
 
         if (!$team) {
             return response()->json([
@@ -85,7 +93,7 @@ class SuccessEstimationController extends Controller
 
         $teamSkills = collect();
         foreach ($team->members as $member) {
-            $memberSkills = UserSkill::where('user_id', $member->user_id)
+            $memberSkills = StudentSkill::where('student_id', $member->student_id)
                 ->get();
             foreach ($memberSkills as $skill) {
                 if ($teamSkills->has($skill->skill_id)) {
@@ -134,7 +142,7 @@ class SuccessEstimationController extends Controller
         ]);
     }
 
-    private function calculateSkillCoverage($project, $userSkills)
+    private function calculateSkillCoverage($project, $studentSkills)
     {
         $projectSkills = $project->skills;
 
@@ -149,8 +157,8 @@ class SuccessEstimationController extends Controller
             $weight = $projectSkill->pivot->weight;
             $totalWeight += $weight;
 
-            if ($userSkills->has($projectSkill->id)) {
-                $proficiency = $userSkills[$projectSkill->id]->proficiency_level;
+            if ($studentSkills->has($projectSkill->id)) {
+                $proficiency = $studentSkills[$projectSkill->id]->proficiency_level;
                 $coveredWeight += $weight * ($proficiency / 5);
             }
         }
@@ -192,8 +200,8 @@ class SuccessEstimationController extends Controller
 
         $skillCounts = collect();
         foreach ($members as $member) {
-            $userSkills = UserSkill::where('user_id', $member->user_id)->get();
-            foreach ($userSkills as $skill) {
+            $memberSkills = StudentSkill::where('student_id', $member->student_id)->get();
+            foreach ($memberSkills as $skill) {
                 $skillCounts[$skill->skill_id] = ($skillCounts[$skill->skill_id] ?? 0) + 1;
             }
         }

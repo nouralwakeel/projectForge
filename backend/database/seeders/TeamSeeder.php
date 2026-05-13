@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Project;
+use App\Models\Student;
 use App\Models\Team;
 use App\Models\TeamMember;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class TeamSeeder extends Seeder
@@ -13,7 +13,7 @@ class TeamSeeder extends Seeder
     public function run(): void
     {
         $projects = Project::all();
-        $students = User::where('role', 'student')->get();
+        $students = Student::all();
 
         if ($projects->isEmpty() || $students->count() < 4) {
             $this->command->warn('TeamSeeder: Not enough projects or students. Skipping.');
@@ -50,7 +50,7 @@ class TeamSeeder extends Seeder
             foreach ($teamMembers as $memberIndex => $student) {
                 TeamMember::create([
                     'team_id' => $team->id,
-                    'user_id' => $student->id,
+                    'student_id' => $student->id,
                     'role_in_team' => $memberIndex === 0 ? 'leader' : 'member',
                 ]);
             }

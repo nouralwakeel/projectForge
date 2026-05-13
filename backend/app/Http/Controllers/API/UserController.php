@@ -4,15 +4,16 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSkillsRequest;
+use App\Models\Student;
+use App\Models\StudentSkill;
 use App\Models\User;
-use App\Models\UserSkill;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['major', 'skills'])->paginate(10);
+        $users = User::with(['student.major', 'student.skills'])->paginate(10);
 
         return response()->json([
             'success' => true,
@@ -22,7 +23,7 @@ class UserController extends Controller
 
     public function show(string $id)
     {
-        $user = User::with(['major', 'skills', 'teams.project'])->find($id);
+        $user = User::with(['student.major', 'student.skills', 'student.teams.project'])->find($id);
 
         if (!$user) {
             return response()->json([
@@ -40,34 +41,52 @@ class UserController extends Controller
     public function updateSkills(UpdateSkillsRequest $request)
     {
         $user = auth()->user();
+        $student = $user->student;
 
-        UserSkill::where('user_id', $user->id)->delete();
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student profile not found'
+            ], 404);
+        }
+
+        StudentSkill::where('student_id', $student->id)->delete();
 
         foreach ($request->skills as $skillData) {
-            UserSkill::create([
-                'user_id' => $user->id,
+            StudentSkill::create([
+                'student_id' => $student->id,
                 'skill_id' => $skillData['skill_id'],
-                'proficiency_level' => $skillData['proficiency_level']
+                'proficiency_level' => $skillData['proficiency_level'],
+                'interest_level' => $skillData['interest_level'],
             ]);
         }
 
-        $user->load('skills');
+        $student->load('skills');
 
         return response()->json([
             'success' => true,
             'message' => 'Skills updated successfully',
-            'data' => $user->skills
+            'data' => $student->skills
         ]);
     }
 
     public function getSkills()
     {
         $user = auth()->user();
-        $user->load('skills');
+        $student = $user->student;
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student profile not found'
+            ], 404);
+        }
+
+        $student->load('skills');
 
         return response()->json([
             'success' => true,
-            'data' => $user->skills
+            'data' => $student->skills
         ]);
     }
 }

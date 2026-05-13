@@ -12,10 +12,10 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Project::with(['advisor', 'skills']);
+        $query = Project::with(['supervisor', 'type', 'skills']);
 
-        if ($request->has('type')) {
-            $query->where('type', $request->type);
+        if ($request->has('type_id')) {
+            $query->where('type_id', $request->type_id);
         }
 
         if ($request->has('status')) {
@@ -39,9 +39,9 @@ class ProjectController extends Controller
         $project = Project::create([
             'title' => $request->title,
             'description' => $request->description,
-            'type' => $request->type,
+            'type_id' => $request->type_id,
             'difficulty_level' => $request->difficulty_level,
-            'advisor_id' => $request->advisor_id ?? auth()->id(),
+            'supervisor_id' => $request->supervisor_id ?? auth()->id(),
             'status' => 'available'
         ]);
 
@@ -53,7 +53,7 @@ class ProjectController extends Controller
             ]);
         }
 
-        $project->load(['advisor', 'skills']);
+        $project->load(['supervisor', 'type', 'skills']);
 
         return response()->json([
             'success' => true,
@@ -64,7 +64,7 @@ class ProjectController extends Controller
 
     public function show(string $id)
     {
-        $project = Project::with(['advisor', 'skills', 'milestones', 'risks', 'teams.members'])
+        $project = Project::with(['supervisor', 'type', 'skills', 'milestones', 'risks', 'teams.members'])
             ->find($id);
 
         if (!$project) {
@@ -94,13 +94,13 @@ class ProjectController extends Controller
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'type' => 'sometimes|required|string',
+            'type_id' => 'sometimes|required|exists:project_types,id',
             'difficulty_level' => 'sometimes|required|integer|min:1|max:5',
             'status' => 'sometimes|required|in:available,in_progress,completed,cancelled'
         ]);
 
         $project->update($request->only([
-            'title', 'description', 'type', 'difficulty_level', 'status'
+            'title', 'description', 'type_id', 'difficulty_level', 'status'
         ]));
 
         if ($request->has('skills')) {
@@ -114,7 +114,7 @@ class ProjectController extends Controller
             }
         }
 
-        $project->load(['advisor', 'skills']);
+        $project->load(['supervisor', 'type', 'skills']);
 
         return response()->json([
             'success' => true,

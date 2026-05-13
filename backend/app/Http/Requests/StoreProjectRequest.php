@@ -25,7 +25,7 @@ class StoreProjectRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'type' => 'required|string',
+            'type_id' => 'required|exists:project_types,id',
             'difficulty_level' => 'required|integer|min:1|max:5',
             'skills' => 'required|array|min:1',
             'skills.*.id' => 'required|exists:skills,id',

@@ -26,6 +26,7 @@ class UpdateSkillsRequest extends FormRequest
             'skills' => 'required|array|min:1',
             'skills.*.skill_id' => 'required|exists:skills,id',
             'skills.*.proficiency_level' => 'required|integer|min:1|max:5',
+            'skills.*.interest_level' => 'required|integer|min:1|max:5',
         ];
     }
 }

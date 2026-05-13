@@ -8,8 +8,8 @@ class Major extends Model
 {
     protected $fillable = ['name', 'code'];
 
-    public function users()
+    public function students()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(Student::class);
     }
 }

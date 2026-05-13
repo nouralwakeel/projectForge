@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Student;
 use App\Models\Team;
 use App\Models\TeamMember;
 use Illuminate\Http\Request;
@@ -32,9 +33,18 @@ class TeamController extends Controller
             'is_approved' => false
         ]);
 
+        $student = Student::where('user_id', auth()->id())->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student profile not found'
+            ], 404);
+        }
+
         TeamMember::create([
             'team_id' => $team->id,
-            'user_id' => auth()->id(),
+            'student_id' => $student->id,
             'role_in_team' => 'leader'
         ]);
 
@@ -49,7 +59,7 @@ class TeamController extends Controller
 
     public function show(string $id)
     {
-        $team = Team::with(['project', 'members.user'])->find($id);
+        $team = Team::with(['project', 'members.student'])->find($id);
 
         if (!$team) {
             return response()->json([
@@ -121,8 +131,10 @@ class TeamController extends Controller
             ], 404);
         }
 
+        $student = Student::where('user_id', auth()->id())->first();
+
         $existingMember = TeamMember::where('team_id', $id)
-            ->where('user_id', auth()->id())
+            ->where('student_id', $student ? $student->id : null)
             ->first();
 
         if ($existingMember) {
@@ -132,9 +144,16 @@ class TeamController extends Controller
             ], 400);
         }
 
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student profile not found'
+            ], 404);
+        }
+
         TeamMember::create([
             'team_id' => $team->id,
-            'user_id' => auth()->id(),
+            'student_id' => $student->id,
             'role_in_team' => 'member'
         ]);
 

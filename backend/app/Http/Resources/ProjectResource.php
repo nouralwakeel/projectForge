@@ -7,21 +7,17 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProjectResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
-            'type' => $this->type,
+            'type' => new ProjectTypeResource($this->whenLoaded('type')),
+            'type_id' => $this->type_id,
             'difficulty_level' => $this->difficulty_level,
             'status' => $this->status,
-            'advisor' => new UserResource($this->whenLoaded('advisor')),
+            'supervisor' => new UserResource($this->whenLoaded('supervisor')),
             'skills' => SkillResource::collection($this->whenLoaded('skills')),
             'milestones' => MilestoneResource::collection($this->whenLoaded('milestones')),
             'risks' => RiskResource::collection($this->whenLoaded('risks')),

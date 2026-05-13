@@ -42,7 +42,7 @@ class SkillController extends Controller
 
     public function show(string $id)
     {
-        $skill = Skill::with(['users', 'projects'])->find($id);
+        $skill = Skill::with(['students', 'projects'])->find($id);
 
         if (!$skill) {
             return response()->json([

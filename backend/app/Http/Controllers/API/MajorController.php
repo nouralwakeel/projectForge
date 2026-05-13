@@ -35,7 +35,7 @@ class MajorController extends Controller
 
     public function show(string $id)
     {
-        $major = Major::with('users')->find($id);
+        $major = Major::with('students')->find($id);
 
         if (!$major) {
             return response()->json([

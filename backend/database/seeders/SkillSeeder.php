@@ -50,6 +50,16 @@ class SkillSeeder extends Seeder
             ['name' => 'Figma', 'category' => 'Design'],
             ['name' => 'Agile/Scrum', 'category' => 'Soft Skills'],
             ['name' => 'Problem Solving', 'category' => 'Soft Skills'],
+            ['name' => 'Project Management', 'category' => 'Soft Skills'],
+            ['name' => 'Technical Writing', 'category' => 'Soft Skills'],
+            ['name' => 'Presentation', 'category' => 'Soft Skills'],
+            ['name' => 'Team Management', 'category' => 'Soft Skills'],
+            ['name' => 'Web Security', 'category' => 'Cybersecurity'],
+            ['name' => 'Cryptography', 'category' => 'Cybersecurity'],
+            ['name' => 'Penetration Testing', 'category' => 'Cybersecurity'],
+            ['name' => 'Raspberry Pi', 'category' => 'IoT'],
+            ['name' => 'Embedded Systems', 'category' => 'IoT'],
+            ['name' => 'Arduino', 'category' => 'IoT'],
         ];
 
         foreach ($skills as $skill) {

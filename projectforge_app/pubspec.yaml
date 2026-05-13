@@ -1,0 +1,39 @@
+name: projectforge_app
+description: "ProjectForge - Smart University Graduation Project Management System"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # HTTP
+  dio: ^5.4.0
+
+  # State Management
+  get: ^4.6.6
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.0
+
+  # UI
+  fl_chart: ^0.68.0
+  google_fonts: ^6.1.0
+  flutter_svg: ^2.0.0
+  percent_indicator: ^4.2.3
+
+  # Utilities
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

@@ -7,11 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SuccessEstimationResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
@@ -21,7 +16,7 @@ class SuccessEstimationResource extends JsonResource
             'factors' => json_decode($this->factors_log, true),
             'project' => new ProjectResource($this->whenLoaded('project')),
             'team' => new TeamResource($this->whenLoaded('team')),
-            'user' => new UserResource($this->whenLoaded('user')),
+            'student' => new StudentResource($this->whenLoaded('student')),
         ];
     }
 }
