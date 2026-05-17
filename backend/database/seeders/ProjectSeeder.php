@@ -17,7 +17,6 @@ class ProjectSeeder extends Seeder
 
         if (!$advisor) {
             $advisor = User::create([
-                'name' => 'Dr. Ahmed Mohammed',
                 'email' => 'advisor@example.com',
                 'password' => bcrypt('password'),
                 'role' => 'advisor',

@@ -30,20 +30,21 @@ class UserModel {
   String get fullName => '$firstName $lastName';
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final student = json['student'] as Map<String, dynamic>?;
     return UserModel(
       id: json['id'],
-      studentId: json['student_id'] ?? '',
-      firstName: json['first_name'] ?? '',
-      lastName: json['last_name'] ?? '',
+      studentId: student?['stud_num']?.toString() ?? '',
+      firstName: student?['first_name'] ?? json['name']?.toString().split(' ').first ?? '',
+      lastName: student?['last_name'] ?? json['name']?.toString().split(' ').last ?? '',
       email: json['email'] ?? '',
-      gender: json['gender'] ?? 'male',
-      dateOfBirth: json['date_of_birth'],
-      majorId: json['major_id'],
-      academicLevel: json['academic_level'],
+      gender: student?['gender'] ?? 'male',
+      dateOfBirth: student?['date_of_birth'],
+      majorId: student?['major_id'],
+      academicLevel: student?['academic_level'],
       role: json['role'] ?? 'student',
-      major: json['major'] != null ? MajorModel.fromJson(json['major']) : null,
-      skills: json['skills'] != null
-          ? (json['skills'] as List).map((e) => UserSkillModel.fromJson(e)).toList()
+      major: student?['major'] != null ? MajorModel.fromJson(student!['major']) : null,
+      skills: student?['skills'] != null
+          ? (student!['skills'] as List).map((e) => UserSkillModel.fromJson(e)).toList()
           : null,
     );
   }

@@ -3,6 +3,7 @@ import '../services/auth_service.dart';
 import '../services/api_service.dart';
 import '../config/api_config.dart';
 import '../models/user_model.dart';
+import '../app/routes/app_routes.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
@@ -13,16 +14,6 @@ class AuthController extends GetxController {
   RxString errorMessage = ''.obs;
   RxList<MajorModel> majors = <MajorModel>[].obs;
   RxnInt selectedMajor = RxnInt();
-
-  @override
-  void onInit() {
-    super.onInit();
-    ever(_authService.isLoggedIn, (val) {
-      isLoggedIn.value = val;
-    });
-    isLoggedIn.value = _authService.isLoggedIn.value;
-    loadMajors();
-  }
 
   Future<void> loadMajors() async {
     try {
@@ -35,6 +26,13 @@ class AuthController extends GetxController {
     }
   }
 
+  String _routeForUser(UserModel? user) {
+    if (user == null) return AppRoutes.login;
+    if (user.role == 'admin') return AppRoutes.adminDashboard;
+    if (user.skills == null || user.skills!.isEmpty) return AppRoutes.survey;
+    return AppRoutes.home;
+  }
+
   Future<bool> login(String email, String password) async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -42,11 +40,7 @@ class AuthController extends GetxController {
     isLoading.value = false;
     if (success) {
       final user = _authService.currentUser.value;
-      if (user != null && (user.skills == null || user.skills!.isEmpty)) {
-        Get.offAllNamed('/survey');
-      } else {
-        Get.offAllNamed('/home');
-      }
+      Get.offAllNamed(_routeForUser(user));
     } else {
       errorMessage.value = 'بيانات الدخول غير صحيحة';
     }
@@ -59,7 +53,7 @@ class AuthController extends GetxController {
     final success = await _authService.register(data);
     isLoading.value = false;
     if (success) {
-      Get.offAllNamed('/survey');
+      Get.offAllNamed(AppRoutes.survey);
     } else {
       errorMessage.value = 'فشل في إنشاء الحساب';
     }

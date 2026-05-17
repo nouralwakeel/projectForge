@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\HealthController;
 use App\Http\Controllers\API\MajorController;
@@ -45,6 +46,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/skills', [SkillController::class, 'store']);
             Route::put('/skills/{id}', [SkillController::class, 'update']);
             Route::delete('/skills/{id}', [SkillController::class, 'destroy']);
+
+            Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
+            Route::get('/admin/users', [AdminController::class, 'users']);
+            Route::get('/admin/projects', [AdminController::class, 'projects']);
+            Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
+            Route::put('/admin/projects/{id}/status', [AdminController::class, 'updateProjectStatus']);
         });
     });
 });

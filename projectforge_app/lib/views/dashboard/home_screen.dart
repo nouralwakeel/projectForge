@@ -17,11 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    Get.put(TeamController());
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +270,7 @@ class _TeamsDiscoveryPageState extends State<_TeamsDiscoveryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<TeamController>();
+    final controller = Get.put(TeamController());
 
     return Directionality(
       textDirection: TextDirection.rtl,

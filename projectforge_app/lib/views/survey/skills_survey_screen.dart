@@ -185,13 +185,15 @@ class SkillsSurveyScreen extends StatelessWidget {
   }
 
   Widget _buildSubmitButton(SkillController controller) {
-    return GestureDetector(
-      onTap: () => controller.saveSkills(),
+    return Obx(() => GestureDetector(
+      onTap: controller.isSaving.value ? null : () => controller.saveSkills(),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 48),
         decoration: BoxDecoration(
-          color: AppTheme.primaryColor,
+          color: controller.isSaving.value
+              ? AppTheme.primaryColor.withValues(alpha: 0.6)
+              : AppTheme.primaryColor,
           borderRadius: BorderRadius.circular(16),
           border: const Border(
             bottom: BorderSide(
@@ -207,26 +209,37 @@ class SkillsSurveyScreen extends StatelessWidget {
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'إرسال الاستبيان',
-              style: TextStyle(
-                color: AppTheme.onPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+            if (controller.isSaving.value)
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: AppTheme.onPrimary,
+                  strokeWidth: 2,
+                ),
+              )
+            else ...[
+              const Text(
+                'إرسال الاستبيان',
+                style: TextStyle(
+                  color: AppTheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-            ),
-            SizedBox(width: 8),
-            Icon(
-              Icons.send,
-              color: AppTheme.onPrimary,
-              size: 20,
-            ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.send,
+                color: AppTheme.onPrimary,
+                size: 20,
+              ),
+            ],
           ],
         ),
       ),
-    );
+    ));
   }
 }

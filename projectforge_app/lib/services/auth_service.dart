@@ -11,14 +11,10 @@ class AuthService extends GetxService {
 
   final Rx<UserModel?> currentUser = Rx<UserModel?>(null);
   final RxBool isLoggedIn = false.obs;
+  final RxBool isInitialized = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    _checkLogin();
-  }
-
-  Future<void> _checkLogin() async {
+  Future<void> checkLogin() async {
+    if (isInitialized.value) return;
     try {
       final loggedIn = await _storage.isLoggedIn();
       if (loggedIn) {
@@ -35,6 +31,7 @@ class AuthService extends GetxService {
     } catch (_) {
       await _storage.clearAll();
     }
+    isInitialized.value = true;
   }
 
   Future<bool> register(Map<String, dynamic> data) async {
@@ -85,7 +82,7 @@ class AuthService extends GetxService {
     await _storage.clearAll();
     currentUser.value = null;
     isLoggedIn.value = false;
-    Get.offAllNamed('/home');
+    Get.offAllNamed('/login');
   }
 
   Future<void> refreshProfile() async {

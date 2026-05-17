@@ -21,9 +21,12 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
     try {
       final authService = Get.find<AuthService>();
+      await authService.checkLogin().timeout(const Duration(seconds: 5));
       if (authService.isLoggedIn.value) {
         final user = authService.currentUser.value;
-        if (user != null && user.skills != null && user.skills!.isNotEmpty) {
+        if (user != null && user.role == 'admin') {
+          Get.offAllNamed(AppRoutes.adminDashboard);
+        } else if (user != null && user.skills != null && user.skills!.isNotEmpty) {
           Get.offAllNamed(AppRoutes.home);
         } else {
           Get.offAllNamed(AppRoutes.survey);
@@ -32,6 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Get.offAllNamed(AppRoutes.login);
       }
     } catch (e) {
+      debugPrint('Splash error: $e');
       Get.offAllNamed(AppRoutes.login);
     }
   }

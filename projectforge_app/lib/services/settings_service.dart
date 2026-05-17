@@ -25,7 +25,7 @@ class SettingsService extends GetxService {
   String _defaultIp() {
     if (kIsWeb) return 'localhost';
     try {
-      if (Platform.isAndroid) return '10.0.2.2';
+      if (Platform.isAndroid) return '10.204.231.62';
     } catch (_) {}
     return 'localhost';
   }

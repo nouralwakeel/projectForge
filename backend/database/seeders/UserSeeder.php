@@ -36,7 +36,6 @@ class UserSeeder extends Seeder
         });
 
         $adminUser = User::create([
-            'name' => 'System Admin',
             'email' => 'admin@projectforge.com',
             'password' => Hash::make('password'),
             'role' => 'admin',

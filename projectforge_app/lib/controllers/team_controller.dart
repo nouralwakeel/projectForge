@@ -14,7 +14,7 @@ class TeamController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchTeams();
+    Future.delayed(Duration.zero, fetchTeams);
   }
 
   Future<void> fetchTeams() async {

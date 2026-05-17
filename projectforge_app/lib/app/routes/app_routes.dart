@@ -12,4 +12,9 @@ abstract class AppRoutes {
   static const String teamDetail = '/team/:id';
   static const String profile = '/profile';
   static const String settings = '/settings';
+  static const String adminDashboard = '/admin-dashboard';
+  static const String adminUsers = '/admin/users';
+  static const String adminProjects = '/admin/projects';
+  static const String adminMajors = '/admin/majors';
+  static const String adminSkills = '/admin/skills';
 }

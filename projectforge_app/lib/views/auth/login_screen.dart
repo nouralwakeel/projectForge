@@ -38,13 +38,18 @@ class _LoginScreenState extends State<LoginScreen> {
         child: const Icon(Icons.settings_outlined),
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 448),
-              child: Stack(
-                children: [
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - 32,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 448),
+                  child: Stack(
+                    children: [
                   Positioned(
                     top: -48,
                     right: -48,
@@ -293,14 +298,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+                 ],
+               ),
+             ),
+           ),
+         ),
+       ),
+     ),
+   ),
+  );
+   }
 
   Widget _buildLabel(String text) {
     return SizedBox(
