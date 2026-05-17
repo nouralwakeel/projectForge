@@ -26,17 +26,17 @@ class SkillRatingButtons extends StatelessWidget {
           final double buttonSize = (availableWidth / 5 - 4).clamp(24.0, 32.0);
           final double fontSize = buttonSize < 28 ? 11 : 13;
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          return Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 4,
+            runSpacing: 4,
             children: List.generate(5, (index) {
               final rating = index + 1;
               final isSelected = rating == value;
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: SizedBox(
-                  width: buttonSize,
-                  height: buttonSize,
-                  child: Material(
+              return SizedBox(
+                width: buttonSize,
+                height: buttonSize,
+                child: Material(
                     color: isSelected ? activeBgColor : Colors.transparent,
                     shape: CircleBorder(
                       side: isSelected
@@ -62,8 +62,7 @@ class SkillRatingButtons extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
-              );
+                );
             }),
           );
         },

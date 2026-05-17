@@ -57,6 +57,11 @@ class ApiService extends GetxService {
 
   void _onError(DioException e, ErrorInterceptorHandler handler) {
     if (e.response?.statusCode == 401) {
+      final path = e.requestOptions.path;
+      if (path.endsWith('/login')) {
+        handler.next(e);
+        return;
+      }
       _storage.clearAll();
       Get.offAllNamed('/login');
     }

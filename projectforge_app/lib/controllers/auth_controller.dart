@@ -50,8 +50,22 @@ class AuthController extends GetxController {
   }
 
   Future<bool> login(String email, String password) async {
-    isLoading.value = true;
     errorMessage.value = '';
+
+    if (email.isEmpty) {
+      errorMessage.value = 'الرجاء إدخال البريد الإلكتروني';
+      return false;
+    }
+    if (!_isValidEmail(email)) {
+      errorMessage.value = 'صيغة البريد الإلكتروني غير صحيحة';
+      return false;
+    }
+    if (password.isEmpty) {
+      errorMessage.value = 'الرجاء إدخال كلمة المرور';
+      return false;
+    }
+
+    isLoading.value = true;
     final error = await _authService.login(email, password);
     isLoading.value = false;
     if (error == null) {
@@ -61,6 +75,10 @@ class AuthController extends GetxController {
     }
     errorMessage.value = error;
     return false;
+  }
+
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,}$').hasMatch(email);
   }
 
   Future<bool> register(Map<String, dynamic> data) async {

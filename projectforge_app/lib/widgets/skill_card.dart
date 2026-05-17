@@ -61,19 +61,18 @@ class SkillCard extends StatelessWidget {
   }
 
   Widget _buildSideBySideLayout() {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: _buildProficiencySection()),
-          Container(
-            width: 1,
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            color: AppTheme.outlineVariant.withValues(alpha: 0.3),
-          ),
-          Expanded(child: _buildInterestSection()),
-        ],
-      ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: _buildProficiencySection()),
+        Container(
+          width: 1,
+          height: 54, // fixed height instead of IntrinsicHeight
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+        ),
+        Expanded(child: _buildInterestSection()),
+      ],
     );
   }
 

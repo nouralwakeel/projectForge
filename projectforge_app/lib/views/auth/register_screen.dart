@@ -90,8 +90,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Flex(
                         direction: isWide ? Axis.horizontal : Axis.vertical,
                         children: [
-                          Expanded(
+                          Flexible(
                             flex: isWide ? 1 : 0,
+                            fit: isWide ? FlexFit.tight : FlexFit.loose,
                             child: Container(
                               width: isWide ? null : double.infinity,
                               padding: EdgeInsets.all(isWide ? 48 : 24),
