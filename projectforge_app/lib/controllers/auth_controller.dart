@@ -52,28 +52,28 @@ class AuthController extends GetxController {
   Future<bool> login(String email, String password) async {
     isLoading.value = true;
     errorMessage.value = '';
-    final success = await _authService.login(email, password);
+    final error = await _authService.login(email, password);
     isLoading.value = false;
-    if (success) {
+    if (error == null) {
       final user = _authService.currentUser.value;
       Get.offAllNamed(_routeForUser(user));
-    } else {
-      errorMessage.value = 'بيانات الدخول غير صحيحة';
+      return true;
     }
-    return success;
+    errorMessage.value = error;
+    return false;
   }
 
   Future<bool> register(Map<String, dynamic> data) async {
     isLoading.value = true;
     errorMessage.value = '';
-    final success = await _authService.register(data);
+    final error = await _authService.register(data);
     isLoading.value = false;
-    if (success) {
+    if (error == null) {
       Get.offAllNamed(AppRoutes.survey);
-    } else {
-      errorMessage.value = 'فشل في إنشاء الحساب';
+      return true;
     }
-    return success;
+    errorMessage.value = error;
+    return false;
   }
 
   Future<void> logout() async {

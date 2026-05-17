@@ -150,8 +150,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       hint: '20210001',
                                       icon: Icons.badge_outlined,
                                       keyboardType: TextInputType.number,
-                                      validator: (v) =>
-                                          v!.isEmpty ? 'مطلوب' : null,
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty) return 'مطلوب';
+                                        if (!RegExp(r'^\d{4,20}$').hasMatch(v)) {
+                                          return 'أدخل رقماً جامعياً صحيحاً';
+                                        }
+                                        return null;
+                                      },
                                     ),
                                     const SizedBox(height: 16),
                                     _buildLabel('الجنس'),
@@ -293,8 +298,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       hint: 'student@university.edu',
                                       icon: Icons.mail_outline,
                                       keyboardType: TextInputType.emailAddress,
-                                      validator: (v) =>
-                                          v!.isEmpty ? 'مطلوب' : null,
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty) return 'مطلوب';
+                                        if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v)) {
+                                          return 'صيغة البريد الإلكتروني غير صحيحة';
+                                        }
+                                        return null;
+                                      },
                                     ),
                                     const SizedBox(height: 16),
                                     _buildLabel('كلمة المرور'),
@@ -304,7 +314,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       hint: '••••••••',
                                       icon: Icons.lock_outline,
                                       obscure: true,
-                                      validator: (v) => v!.length < 8
+                                      validator: (v) => (v == null || v.length < 8)
                                           ? '8 أحرف على الأقل'
                                           : null,
                                     ),
@@ -318,10 +328,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       obscure: true,
                                       validator: (v) =>
                                           v != passwordCtrl.text
-                                              ? 'غير متطابق'
+                                              ? 'كلمة المرور غير متطابقة'
                                               : null,
                                     ),
                                     const SizedBox(height: 24),
+                                    // ── Error banner from server ──────────────
+                                    Obx(() {
+                                      final msg = controller.errorMessage.value;
+                                      if (msg.isEmpty) return const SizedBox.shrink();
+                                      return Container(
+                                        width: double.infinity,
+                                        margin: const EdgeInsets.only(bottom: 16),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.errorColor.withValues(alpha: 0.08),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: AppTheme.errorColor.withValues(alpha: 0.4)),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Icon(Icons.error_outline,
+                                                color: AppTheme.errorColor, size: 18),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                msg,
+                                                textAlign: TextAlign.start,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: AppTheme.errorColor,
+                                                  height: 1.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
                                     Obx(() => Container(
                                           width: double.infinity,
                                           decoration: BoxDecoration(
@@ -347,6 +393,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               onTap: controller.isLoading.value
                                                   ? null
                                                   : () {
+                                                      controller.errorMessage.value = '';
                                                       if (formKey.currentState!
                                                           .validate()) {
                                                         final nameParts =

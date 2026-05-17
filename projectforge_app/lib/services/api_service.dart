@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Response;
 import '../config/api_config.dart';
 import 'storage_service.dart';
@@ -12,8 +13,12 @@ class ApiService extends GetxService {
   void onInit() {
     super.onInit();
     final settings = Get.find<SettingsService>();
-    _dio = Dio(BaseOptions(
-      baseUrl: settings.getBaseUrl(),
+    _dio = _buildDio(settings.getBaseUrl());
+  }
+
+  Dio _buildDio(String baseUrl) {
+    final dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
       connectTimeout: ApiConfig.connectTimeout,
       receiveTimeout: ApiConfig.receiveTimeout,
       headers: {
@@ -22,27 +27,24 @@ class ApiService extends GetxService {
       },
     ));
 
-    _dio.interceptors.add(InterceptorsWrapper(
+    dio.interceptors.add(InterceptorsWrapper(
       onRequest: _onRequest,
       onError: _onError,
     ));
+
+    if (kDebugMode) {
+      dio.interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        logPrint: (o) => debugPrint(o.toString()),
+      ));
+    }
+
+    return dio;
   }
 
   void updateBaseUrl(String url) {
-    _dio = Dio(BaseOptions(
-      baseUrl: url,
-      connectTimeout: ApiConfig.connectTimeout,
-      receiveTimeout: ApiConfig.receiveTimeout,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
-
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: _onRequest,
-      onError: _onError,
-    ));
+    _dio = _buildDio(url);
   }
 
   void _onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
