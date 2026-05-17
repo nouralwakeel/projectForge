@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,16 +11,21 @@ class SettingsService extends GetxService {
   final RxString apiIp = ''.obs;
   final RxString apiPort = ''.obs;
 
+  final Completer<void> _loaded = Completer<void>();
+
   @override
   void onInit() {
     super.onInit();
     _loadSettings();
   }
 
+  Future<void> ensureLoaded() => _loaded.future;
+
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     apiIp.value = prefs.getString(_ipKey) ?? _defaultIp();
     apiPort.value = prefs.getString(_portKey) ?? '8000';
+    if (!_loaded.isCompleted) _loaded.complete();
   }
 
   String _defaultIp() {

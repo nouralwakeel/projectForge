@@ -6,24 +6,49 @@ import '../../controllers/auth_controller.dart';
 import '../../app/routes/app_routes.dart';
 import '../../config/app_theme.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<AuthController>();
-    if (controller.majors.isEmpty) {
-      controller.loadMajors();
-    }
-    final formKey = GlobalKey<FormState>();
-    final fullNameCtrl = TextEditingController();
-    final studNumCtrl = TextEditingController();
-    final emailCtrl = TextEditingController();
-    final passwordCtrl = TextEditingController();
-    final passwordConfirmCtrl = TextEditingController();
-    final selectedGender = RxnString();
-    final selectedDateOfBirth = Rxn<DateTime>();
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
 
+class _RegisterScreenState extends State<RegisterScreen> {
+  final AuthController controller = Get.find<AuthController>();
+  final formKey = GlobalKey<FormState>();
+
+  final fullNameCtrl = TextEditingController();
+  final studNumCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
+  final passwordCtrl = TextEditingController();
+  final passwordConfirmCtrl = TextEditingController();
+  final dobDisplayCtrl = TextEditingController();
+
+  String? selectedGender;
+  DateTime? selectedDateOfBirth;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.selectedMajor.value = null;
+    if (controller.majors.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => controller.loadMajors());
+    }
+  }
+
+  @override
+  void dispose() {
+    fullNameCtrl.dispose();
+    studNumCtrl.dispose();
+    emailCtrl.dispose();
+    passwordCtrl.dispose();
+    passwordConfirmCtrl.dispose();
+    dobDisplayCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.lightColor,
       floatingActionButton: FloatingActionButton.small(
@@ -34,17 +59,17 @@ class RegisterScreen extends StatelessWidget {
         child: const Icon(Icons.settings_outlined),
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - 32,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1000),
-                  child: Container(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Container(
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(12),
@@ -131,67 +156,64 @@ class RegisterScreen extends StatelessWidget {
                                     const SizedBox(height: 16),
                                     _buildLabel('الجنس'),
                                     const SizedBox(height: 4),
-                                    Obx(() => DropdownButtonFormField<String>(
-                                          value: selectedGender.value,
-                                          decoration: _inputDecoration(
-                                            hint: 'اختر الجنس',
-                                            icon: Icons.person_outline,
-                                          ),
-                                          items: const [
-                                            DropdownMenuItem(
-                                              value: 'male',
-                                              child: Text('ذكر'),
-                                            ),
-                                            DropdownMenuItem(
-                                              value: 'female',
-                                              child: Text('أنثى'),
-                                            ),
-                                          ],
-                                          onChanged: (v) {
-                                            selectedGender.value = v;
-                                          },
-                                          validator: (_) =>
-                                              selectedGender.value == null
-                                                  ? 'مطلوب'
-                                                  : null,
-                                        )),
+                                    DropdownButtonFormField<String>(
+                                      initialValue: selectedGender,
+                                      decoration: _inputDecoration(
+                                        hint: 'اختر الجنس',
+                                        icon: Icons.person_outline,
+                                      ),
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'male',
+                                          child: Text('ذكر'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'female',
+                                          child: Text('أنثى'),
+                                        ),
+                                      ],
+                                      onChanged: (v) =>
+                                          setState(() => selectedGender = v),
+                                      validator: (_) =>
+                                          selectedGender == null
+                                              ? 'مطلوب'
+                                              : null,
+                                    ),
                                     const SizedBox(height: 16),
                                     _buildLabel('تاريخ الميلاد'),
                                     const SizedBox(height: 4),
-                                    Obx(() {
-                                      final dob = selectedDateOfBirth.value;
-                                      return GestureDetector(
-                                        onTap: () async {
-                                          final picked = await showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime(2002),
-                                            firstDate: DateTime(1970),
-                                            lastDate: DateTime(2010),
-                                            locale: const Locale('ar'),
-                                          );
-                                          if (picked != null) {
-                                            selectedDateOfBirth.value = picked;
-                                          }
-                                        },
-                                        child: AbsorbPointer(
-                                          child: TextFormField(
-                                            controller: TextEditingController(
-                                              text: dob != null
-                                                  ? '${dob.year}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}'
-                                                  : '',
-                                            ),
-                                            decoration: _inputDecoration(
-                                              hint: '2000-01-01',
-                                              icon: Icons.cake_outlined,
-                                            ),
-                                            validator: (_) =>
-                                                selectedDateOfBirth.value == null
-                                                    ? 'مطلوب'
-                                                    : null,
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final now = DateTime.now();
+                                        final picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime(now.year - 22, now.month, now.day),
+                                          firstDate: DateTime(now.year - 60),
+                                          lastDate: DateTime(now.year - 16),
+                                          locale: const Locale('ar'),
+                                        );
+                                        if (picked != null) {
+                                          setState(() {
+                                            selectedDateOfBirth = picked;
+                                            dobDisplayCtrl.text =
+                                                '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+                                          });
+                                        }
+                                      },
+                                      child: AbsorbPointer(
+                                        child: TextFormField(
+                                          controller: dobDisplayCtrl,
+                                          decoration: _inputDecoration(
+                                            hint: '2000-01-01',
+                                            icon: Icons.cake_outlined,
                                           ),
+                                          validator: (_) =>
+                                              selectedDateOfBirth == null
+                                                  ? 'مطلوب'
+                                                  : null,
                                         ),
-                                      );
-                                    }),
+                                      ),
+                                    ),
                                     const SizedBox(height: 16),
                                     _buildLabel('التخصص الجامعي'),
                                     const SizedBox(height: 4),
@@ -203,7 +225,7 @@ class RegisterScreen extends StatelessWidget {
                                               ))
                                           .toList();
                                       return DropdownButtonFormField<int>(
-                                        value: controller.selectedMajor.value,
+                                        initialValue: controller.selectedMajor.value,
                                         decoration: _inputDecoration(
                                           hint: 'هندسة البرمجيات',
                                           icon: Icons.school_outlined,
@@ -214,11 +236,11 @@ class RegisterScreen extends StatelessWidget {
                                             : (v) =>
                                                 controller.selectedMajor.value =
                                                     v,
-                                        validator: (_) => controller
-                                                    .selectedMajor.value ==
-                                                null
-                                            ? 'مطلوب'
-                                            : null,
+                                        validator: (_) =>
+                                            controller.selectedMajor.value ==
+                                                    null
+                                                ? 'مطلوب'
+                                                : null,
                                       );
                                     }),
                                     const SizedBox(height: 16),
@@ -228,8 +250,7 @@ class RegisterScreen extends StatelessWidget {
                                       controller: emailCtrl,
                                       hint: 'student@university.edu',
                                       icon: Icons.mail_outline,
-                                      keyboardType:
-                                          TextInputType.emailAddress,
+                                      keyboardType: TextInputType.emailAddress,
                                       validator: (v) =>
                                           v!.isEmpty ? 'مطلوب' : null,
                                     ),
@@ -253,9 +274,10 @@ class RegisterScreen extends StatelessWidget {
                                       hint: '••••••••',
                                       icon: Icons.lock,
                                       obscure: true,
-                                      validator: (v) => v != passwordCtrl.text
-                                          ? 'غير متطابق'
-                                          : null,
+                                      validator: (v) =>
+                                          v != passwordCtrl.text
+                                              ? 'غير متطابق'
+                                              : null,
                                     ),
                                     const SizedBox(height: 24),
                                     Obx(() => Container(
@@ -289,16 +311,19 @@ class RegisterScreen extends StatelessWidget {
                                                             fullNameCtrl.text
                                                                 .trim()
                                                                 .split(' ');
-                                                        final dob = selectedDateOfBirth.value;
+                                                        final dob =
+                                                            selectedDateOfBirth;
                                                         controller.register({
                                                           'first_name':
                                                               nameParts.first,
-                                                          'last_name': nameParts
-                                                                  .length > 1
-                                                              ? nameParts
-                                                                  .sublist(1)
-                                                                  .join(' ')
-                                                              : '',
+                                                          'last_name':
+                                                              nameParts.length >
+                                                                      1
+                                                                  ? nameParts
+                                                                      .sublist(
+                                                                          1)
+                                                                      .join(' ')
+                                                                  : '',
                                                           'email':
                                                               emailCtrl.text,
                                                           'password':
@@ -309,8 +334,9 @@ class RegisterScreen extends StatelessWidget {
                                                           'stud_num':
                                                               studNumCtrl.text,
                                                           'gender':
-                                                              selectedGender.value,
-                                                          'date_of_birth': dob != null
+                                                              selectedGender,
+                                                          'date_of_birth': dob !=
+                                                                  null
                                                               ? '${dob.year}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}'
                                                               : '',
                                                           'major_id': controller
@@ -375,13 +401,12 @@ class RegisterScreen extends StatelessWidget {
                                           'لديك حساب بالفعل؟ ',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            color:
-                                                AppTheme.onSurfaceVariant,
+                                            color: AppTheme.onSurfaceVariant,
                                           ),
                                         ),
                                         GestureDetector(
-                                          onTap: () => Get.toNamed(
-                                              AppRoutes.login),
+                                          onTap: () =>
+                                              Get.toNamed(AppRoutes.login),
                                           child: Text(
                                             'تسجيل الدخول',
                                             style: TextStyle(
@@ -495,16 +520,14 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     );
                   },
-                 ),
-               ),
-             ),
-           ),
-         ),
-       ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
-    ),
-   );
-   }
+    );
+  }
 
   Widget _buildLabel(String text) {
     return SizedBox(
@@ -542,8 +565,7 @@ class RegisterScreen extends StatelessWidget {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide:
-            BorderSide(color: AppTheme.secondaryColor, width: 2),
+        borderSide: BorderSide(color: AppTheme.secondaryColor, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -551,8 +573,7 @@ class RegisterScreen extends StatelessWidget {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide:
-            BorderSide(color: AppTheme.errorColor, width: 2),
+        borderSide: BorderSide(color: AppTheme.errorColor, width: 2),
       ),
     );
   }

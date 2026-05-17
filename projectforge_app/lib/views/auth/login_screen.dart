@@ -30,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.lightColor,
+      resizeToAvoidBottomInset: true,
       floatingActionButton: FloatingActionButton.small(
         onPressed: () => Get.toNamed(AppRoutes.settings),
         backgroundColor: AppTheme.surfaceContainerLowest,
@@ -38,17 +39,17 @@ class _LoginScreenState extends State<LoginScreen> {
         child: const Icon(Icons.settings_outlined),
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - 32,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 448),
-                  child: Stack(
+              constraints: const BoxConstraints(maxWidth: 448),
+              child: Stack(
                     children: [
                   Positioned(
                     top: -48,
@@ -88,7 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(48),
+                    padding: EdgeInsets.all(
+                      MediaQuery.of(context).size.width < 400 ? 24 : 48,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(12),
@@ -299,15 +302,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                  ],
-               ),
-             ),
-           ),
-         ),
-       ),
-     ),
-   ),
-  );
-   }
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
   Widget _buildLabel(String text) {
     return SizedBox(
