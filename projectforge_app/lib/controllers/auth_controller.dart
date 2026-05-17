@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
@@ -14,15 +15,30 @@ class AuthController extends GetxController {
   RxString errorMessage = ''.obs;
   RxList<MajorModel> majors = <MajorModel>[].obs;
   RxnInt selectedMajor = RxnInt();
+  RxBool isLoadingMajors = false.obs;
+  RxString majorsError = ''.obs;
 
   Future<void> loadMajors() async {
+    isLoadingMajors.value = true;
+    majorsError.value = '';
     try {
       final res = await _apiService.get(ApiConfig.majors);
       if (res.data['success'] == true) {
-        majors.value = (res.data['data'] as List).map((e) => MajorModel.fromJson(e)).toList();
+        final data = res.data['data'];
+        if (data is List) {
+          majors.assignAll(
+            data.map((e) => MajorModel.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+          );
+        }
+      } else {
+        majorsError.value = 'فشل تحميل التخصصات';
       }
     } catch (e) {
+      debugPrint('loadMajors error: $e');
+      majorsError.value = 'تعذر الاتصال بالخادم';
       majors.clear();
+    } finally {
+      isLoadingMajors.value = false;
     }
   }
 

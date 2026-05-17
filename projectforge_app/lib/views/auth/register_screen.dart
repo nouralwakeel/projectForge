@@ -218,29 +218,71 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     _buildLabel('التخصص الجامعي'),
                                     const SizedBox(height: 4),
                                     Obx(() {
+                                      if (controller.isLoadingMajors.value) {
+                                        return DropdownButtonFormField<int>(
+                                          decoration: _inputDecoration(
+                                            hint: 'جاري التحميل...',
+                                            icon: Icons.school_outlined,
+                                          ),
+                                          items: const [],
+                                          onChanged: null,
+                                          validator: (_) => 'مطلوب',
+                                        );
+                                      }
                                       final items = controller.majors
                                           .map((m) => DropdownMenuItem<int>(
                                                 value: m.id,
                                                 child: Text(m.name),
                                               ))
                                           .toList();
-                                      return DropdownButtonFormField<int>(
-                                        initialValue: controller.selectedMajor.value,
-                                        decoration: _inputDecoration(
-                                          hint: 'هندسة البرمجيات',
-                                          icon: Icons.school_outlined,
-                                        ),
-                                        items: items,
-                                        onChanged: items.isEmpty
-                                            ? null
-                                            : (v) =>
-                                                controller.selectedMajor.value =
-                                                    v,
-                                        validator: (_) =>
-                                            controller.selectedMajor.value ==
-                                                    null
-                                                ? 'مطلوب'
-                                                : null,
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          DropdownButtonFormField<int>(
+                                            initialValue: controller.selectedMajor.value,
+                                            decoration: _inputDecoration(
+                                              hint: 'هندسة البرمجيات',
+                                              icon: Icons.school_outlined,
+                                            ),
+                                            items: items,
+                                            onChanged: items.isEmpty
+                                                ? null
+                                                : (v) => controller.selectedMajor.value = v,
+                                            validator: (_) =>
+                                                controller.selectedMajor.value == null
+                                                    ? 'مطلوب'
+                                                    : null,
+                                          ),
+                                          if (controller.majorsError.value.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    controller.majorsError.value,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: AppTheme.errorColor,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  GestureDetector(
+                                                    onTap: controller.loadMajors,
+                                                    child: Text(
+                                                      'إعادة المحاولة',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: AppTheme.primaryColor,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
                                       );
                                     }),
                                     const SizedBox(height: 16),
