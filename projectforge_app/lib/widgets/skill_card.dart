@@ -51,10 +51,15 @@ class SkillCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          if (categoryStyle.useSideBySideLayout)
-            _buildSideBySideLayout()
-          else
-            _buildStackedLayout(),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final useSideBySide =
+                  categoryStyle.useSideBySideLayout && constraints.maxWidth >= 350;
+              return useSideBySide
+                  ? _buildSideBySideLayout()
+                  : _buildStackedLayout();
+            },
+          ),
         ],
       ),
     );
@@ -67,7 +72,7 @@ class SkillCard extends StatelessWidget {
         Expanded(child: _buildProficiencySection()),
         Container(
           width: 1,
-          height: 54, // fixed height instead of IntrinsicHeight
+          height: 54,
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           color: AppTheme.outlineVariant.withValues(alpha: 0.3),
         ),

@@ -189,7 +189,7 @@ class SkillsSurveyScreen extends StatelessWidget {
       onTap: controller.isSaving.value ? null : () => controller.saveSkills(),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 48),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
           color: controller.isSaving.value
               ? AppTheme.primaryColor.withValues(alpha: 0.6)

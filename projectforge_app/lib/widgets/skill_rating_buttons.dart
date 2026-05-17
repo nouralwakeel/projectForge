@@ -23,7 +23,7 @@ class SkillRatingButtons extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final double availableWidth = constraints.maxWidth;
-          final double buttonSize = (availableWidth / 5 - 4).clamp(24.0, 32.0);
+          final double buttonSize = (availableWidth / 5 - 4).clamp(0.0, 32.0);
           final double fontSize = buttonSize < 28 ? 11 : 13;
 
           return Wrap(
