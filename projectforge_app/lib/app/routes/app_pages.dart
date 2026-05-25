@@ -6,13 +6,17 @@ import '../../controllers/sandbox_controller.dart';
 import '../../controllers/settings_controller.dart';
 import '../../controllers/skill_controller.dart';
 import '../../controllers/admin_dashboard_controller.dart';
+import '../../controllers/advisor_dashboard_controller.dart';
 import '../../controllers/team_controller.dart';
 import '../../views/admin/admin_dashboard_screen.dart';
 import '../../views/admin/admin_users_screen.dart';
 import '../../views/admin/admin_projects_screen.dart';
 import '../../views/admin/admin_majors_screen.dart';
 import '../../views/admin/admin_skills_screen.dart';
+import '../../views/advisor/advisor_dashboard_screen.dart';
+import '../../views/advisor/advisor_team_requests_screen.dart';
 import '../../views/auth/login_screen.dart';
+import '../../views/intro/intro_screen.dart';
 import '../../views/auth/register_screen.dart';
 import '../../views/dashboard/dashboard_screen.dart';
 import '../../views/dashboard/home_screen.dart';
@@ -32,6 +36,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.splash,
       page: () => const SplashScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.intro,
+      page: () => const IntroScreen(),
     ),
     GetPage(
       name: AppRoutes.login,
@@ -109,6 +117,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.adminSkills,
       page: () => const AdminSkillsScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.advisorDashboard,
+      page: () => const AdvisorDashboardScreen(),
+      binding: BindingsBuilder.put(() => AdvisorDashboardController()),
+    ),
+    GetPage(
+      name: AppRoutes.advisorTeamRequests,
+      page: () => const AdvisorTeamRequestsScreen(),
+      binding: BindingsBuilder.put(() => AdvisorDashboardController()),
     ),
   ];
 }

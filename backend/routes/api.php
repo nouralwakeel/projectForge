@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AdminController;
+use App\Http\Controllers\API\AdvisorController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\HealthController;
 use App\Http\Controllers\API\MajorController;
@@ -38,6 +39,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/projects/{id}/sandbox', [SandboxController::class, 'getSandbox']);
         Route::get('/projects/{projectId}/estimate', [SuccessEstimationController::class, 'estimate']);
         Route::get('/teams/{teamId}/estimate', [SuccessEstimationController::class, 'estimateTeam']);
+
+        Route::middleware('role:advisor')->group(function () {
+            Route::get('/advisor/dashboard', [AdvisorController::class, 'dashboard']);
+            Route::get('/advisor/team-requests', [AdvisorController::class, 'teamRequests']);
+            Route::put('/advisor/team-requests/{id}/approve', [AdvisorController::class, 'approveTeamRequest']);
+            Route::put('/advisor/team-requests/{id}/reject', [AdvisorController::class, 'rejectTeamRequest']);
+        });
 
         Route::middleware('role:admin')->group(function () {
             Route::post('/majors', [MajorController::class, 'store']);

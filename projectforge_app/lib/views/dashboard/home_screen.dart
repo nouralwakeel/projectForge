@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../config/app_theme.dart';
 import '../../app/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/team_controller.dart';
 import '../../services/auth_service.dart';
 
@@ -37,10 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         return _buildPlaceholderPage(Icons.biotech, 'المختبر');
       case 3:
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Get.toNamed(AppRoutes.profile);
-        });
-        return const SizedBox.shrink();
+        return const _ProfileTab();
       default:
         return const _OverviewPage();
     }
@@ -177,13 +175,17 @@ class _OverviewPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'ProjectForge',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.primaryColor,
-                letterSpacing: -0.02,
+            Expanded(
+              child: Text(
+                'ProjectForge',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primaryColor,
+                  letterSpacing: -0.02,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const Text(
@@ -191,11 +193,12 @@ class _OverviewPage extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
             ),
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
                   onPressed: () => Get.toNamed(AppRoutes.settings),
                   icon: Icon(Icons.settings_outlined, color: AppTheme.primaryColor),
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(4),
                   constraints: const BoxConstraints(),
                   style: IconButton.styleFrom(
                     shape: const CircleBorder(),
@@ -204,13 +207,13 @@ class _OverviewPage extends StatelessWidget {
                 IconButton(
                   onPressed: () {},
                   icon: Icon(Icons.notifications, color: AppTheme.primaryColor),
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(4),
                   constraints: const BoxConstraints(),
                   style: IconButton.styleFrom(
                     shape: const CircleBorder(),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
                 Container(
                   width: 32,
                   height: 32,
@@ -295,13 +298,17 @@ class _TeamsDiscoveryPageState extends State<_TeamsDiscoveryPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'ProjectForge',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.primaryColor,
-                      letterSpacing: -0.02,
+                  Expanded(
+                    child: Text(
+                      'ProjectForge',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primaryColor,
+                        letterSpacing: -0.02,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const Text(
@@ -309,22 +316,23 @@ class _TeamsDiscoveryPageState extends State<_TeamsDiscoveryPage> {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
                   ),
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         onPressed: () => Get.toNamed(AppRoutes.settings),
                         icon: Icon(Icons.settings_outlined, color: AppTheme.primaryColor),
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(4),
                         constraints: const BoxConstraints(),
                         style: IconButton.styleFrom(shape: const CircleBorder()),
                       ),
                       IconButton(
                         onPressed: () {},
                         icon: Icon(Icons.notifications, color: AppTheme.primaryColor),
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(4),
                         constraints: const BoxConstraints(),
                         style: IconButton.styleFrom(shape: const CircleBorder()),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                       Container(
                         width: 32,
                         height: 32,
@@ -618,7 +626,7 @@ class _TeamsDiscoveryPageState extends State<_TeamsDiscoveryPage> {
             ],
           ),
           const SizedBox(height: 20),
-          ..._mockSkillDemand.map((skill) {
+          ..._mockSkillDemand.map<Widget>((skill) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Column(
@@ -819,7 +827,7 @@ class _TeamsDiscoveryPageState extends State<_TeamsDiscoveryPage> {
                     runSpacing: 6,
                     children: (team.project?.skills ?? [])
                         .take(3)
-                        .map((s) => Container(
+                        .map<Widget>((s) => Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
                                 color: colorAccent.withValues(alpha: 0.08),
@@ -1603,6 +1611,242 @@ class _BenefitItem extends StatelessWidget {
                 Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.onSurface)),
                 const SizedBox(height: 4),
                 Text(description, style: const TextStyle(fontSize: 14, height: 1.5, color: AppTheme.onSurfaceVariant)),
+              ],
+             ),
+           ),
+         ],
+       ),
+     );
+   }
+}
+
+class _ProfileTab extends StatelessWidget {
+  const _ProfileTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = Get.find<AuthService>();
+    final authController = Get.find<AuthController>();
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            pinned: true,
+            elevation: 0,
+            scrolledUnderElevation: 0.5,
+            backgroundColor: Colors.white.withValues(alpha: 0.85),
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+            titleSpacing: 0,
+            leadingWidth: 0,
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'ProjectForge',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primaryColor,
+                        letterSpacing: -0.02,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const Text(
+                    'الملف الشخصي',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
+                  ),
+                  IconButton(
+                    onPressed: () => Get.toNamed(AppRoutes.settings),
+                    icon: Icon(Icons.settings_outlined, color: AppTheme.primaryColor),
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(),
+                    style: IconButton.styleFrom(shape: const CircleBorder()),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            sliver: SliverToBoxAdapter(
+              child: Obx(() {
+                final user = authService.currentUser.value;
+                if (user == null) {
+                  return const Center(child: Text('لا توجد بيانات'));
+                }
+                return Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppTheme.primaryContainer.withValues(alpha: 0.3),
+                        border: Border.all(color: AppTheme.primaryColor, width: 3),
+                      ),
+                      child: Center(
+                        child: Text(
+                          user.fullName[0],
+                          style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      user.fullName,
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.onSurface),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user.email,
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: user.role == 'advisor'
+                            ? AppTheme.tertiaryColor.withValues(alpha: 0.1)
+                            : AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        user.role == 'admin'
+                            ? 'مدير'
+                            : user.role == 'advisor'
+                                ? 'مشرف'
+                                : 'طالب',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: user.role == 'advisor'
+                              ? AppTheme.tertiaryColor
+                              : AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          if (user.studentId.isNotEmpty)
+                            _profileTile('الرقم الجامعي', user.studentId, Icons.badge),
+                          if (user.major != null)
+                            _profileTile('التخصص', user.major!.name, Icons.school),
+                          if (user.academicLevel != null)
+                            _profileTile('المستوى الأكاديمي', '${user.academicLevel}', Icons.stairs),
+                          _profileTile('الجنس', user.gender == 'male' ? 'ذكر' : 'أنثى', Icons.person),
+                        ],
+                      ),
+                    ),
+                    if (user.skills != null && user.skills!.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'المهارات',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
+                                ),
+                                TextButton(
+                                  onPressed: () => Get.toNamed(AppRoutes.survey),
+                                  child: const Text('تعديل'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: user.skills!.map((s) => Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.2)),
+                                ),
+                                child: Text(
+                                  '${s.name} (${s.proficiencyLevel}/5)',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primaryColor),
+                                ),
+                              )).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => authController.logout(),
+                        icon: const Icon(Icons.logout),
+                        label: const Text('تسجيل الخروج'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 100),
+                  ],
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _profileTile(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: AppTheme.primaryColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                const SizedBox(height: 2),
+                Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.onSurface)),
               ],
             ),
           ),

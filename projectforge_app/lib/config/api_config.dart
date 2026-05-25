@@ -19,6 +19,9 @@ class ApiConfig {
   static const String adminUsers = '/admin/users';
   static const String adminProjects = '/admin/projects';
 
+  static const String advisorDashboard = '/advisor/dashboard';
+  static const String advisorTeamRequests = '/advisor/team-requests';
+
   static String projectSandbox(int id) => '/projects/$id/sandbox';
   static String projectEstimate(int id) => '/projects/$id/estimate';
   static String teamEstimate(int id) => '/teams/$id/estimate';

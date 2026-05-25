@@ -89,6 +89,8 @@ class CategorySection extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                 child: Wrap(
+                  alignment: WrapAlignment.center,
+                  runAlignment: WrapAlignment.center,
                   spacing: 12,
                   runSpacing: 12,
                   children: children

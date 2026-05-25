@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textDirection: TextDirection.ltr,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 40,
+                            fontSize: 28,
                             fontWeight: FontWeight.w700,
                             height: 1.2,
                             color: AppTheme.primaryColor,

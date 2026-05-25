@@ -10,6 +10,7 @@ class Team extends Model
         'name',
         'project_id',
         'is_approved',
+        'supervisor_status',
     ];
 
     protected $casts = [

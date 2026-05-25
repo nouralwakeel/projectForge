@@ -67,17 +67,22 @@ class AdminDashboardScreen extends StatelessWidget {
                           constraints: const BoxConstraints(),
                           style: IconButton.styleFrom(shape: const CircleBorder()),
                         ),
-                        PopupMenuButton(
-                          icon: Icon(Icons.person, color: AppTheme.primaryColor, size: 20),
-                          padding: EdgeInsets.zero,
+                        IconButton(
+                          onPressed: () => Get.toNamed(AppRoutes.profile),
+                          icon: Icon(Icons.person_outline, color: AppTheme.primaryColor, size: 20),
+                          padding: const EdgeInsets.all(4),
                           constraints: const BoxConstraints(),
+                          style: IconButton.styleFrom(shape: const CircleBorder()),
+                        ),
+                        PopupMenuButton(
+                          icon: Icon(Icons.more_vert, color: AppTheme.primaryColor, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                           itemBuilder: (_) => [
-                            const PopupMenuItem(value: 'profile', child: Text('الملف الشخصي')),
                             const PopupMenuItem(value: 'logout', child: Text('تسجيل الخروج')),
                           ],
                           onSelected: (v) {
                             if (v == 'logout') authController.logout();
-                            if (v == 'profile') Get.toNamed(AppRoutes.profile);
                           },
                         ),
                       ],

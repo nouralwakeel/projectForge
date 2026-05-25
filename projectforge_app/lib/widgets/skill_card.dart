@@ -40,10 +40,13 @@ class SkillCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: categoryStyle.useSkillGrid
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
         children: [
           Text(
             skillName,
+            textAlign: categoryStyle.useSkillGrid ? TextAlign.center : null,
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -93,7 +96,9 @@ class SkillCard extends StatelessWidget {
 
   Widget _buildProficiencySection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: categoryStyle.useSkillGrid
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         Text(
           'مستوى المهارة',
@@ -116,7 +121,9 @@ class SkillCard extends StatelessWidget {
 
   Widget _buildInterestSection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: categoryStyle.useSkillGrid
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         Text(
           'الاهتمام',

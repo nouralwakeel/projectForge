@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ProjectResource;
+use App\Http\Resources\TeamResource;
+use App\Models\Project;
+use App\Models\Team;
+use Illuminate\Http\Request;
+
+class AdvisorController extends Controller
+{
+    public function dashboard()
+    {
+        $advisor = auth()->user();
+
+        $projects = Project::where('supervisor_id', $advisor->id)
+            ->with(['type', 'teams.members.student.user', 'skills'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalProjects = $projects->count();
+        $totalTeams = $projects->sum(fn($p) => $p->teams->count());
+        $pendingRequests = Team::whereHas('project', fn($q) => $q->where('supervisor_id', $advisor->id))
+            ->where('supervisor_status', 'pending')
+            ->count();
+
+        $statusCounts = $projects->groupBy('status')
+            ->map(fn($items) => $items->count())
+            ->toArray();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'stats' => [
+                    'projects_count' => $totalProjects,
+                    'teams_count' => $totalTeams,
+                    'pending_requests_count' => $pendingRequests,
+                    'status_counts' => $statusCounts,
+                ],
+                'projects' => ProjectResource::collection($projects),
+            ],
+        ]);
+    }
+
+    public function teamRequests(Request $request)
+    {
+        $advisor = auth()->user();
+        $status = $request->get('status', 'pending');
+
+        $query = Team::whereHas('project', fn($q) => $q->where('supervisor_id', $advisor->id));
+
+        if ($status && in_array($status, ['pending', 'approved', 'rejected'])) {
+            $query->where('supervisor_status', $status);
+        }
+
+        $teams = $query->with(['project', 'members.student.user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return response()->json([
+            'success' => true,
+            'data' => $teams,
+        ]);
+    }
+
+    public function approveTeamRequest($id)
+    {
+        $advisor = auth()->user();
+
+        $team = Team::whereHas('project', fn($q) => $q->where('supervisor_id', $advisor->id))
+            ->find($id);
+
+        if (!$team) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم العثور على الفريق',
+            ], 404);
+        }
+
+        if ($team->supervisor_status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'تم معالجة هذا الطلب مسبقاً',
+            ], 400);
+        }
+
+        $team->update([
+            'supervisor_status' => 'approved',
+            'is_approved' => true,
+        ]);
+
+        $team->load(['project', 'members.student.user']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم قبول الفريق بنجاح',
+            'data' => new TeamResource($team),
+        ]);
+    }
+
+    public function rejectTeamRequest(Request $request, $id)
+    {
+        $advisor = auth()->user();
+
+        $team = Team::whereHas('project', fn($q) => $q->where('supervisor_id', $advisor->id))
+            ->find($id);
+
+        if (!$team) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم العثور على الفريق',
+            ], 404);
+        }
+
+        if ($team->supervisor_status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'تم معالجة هذا الطلب مسبقاً',
+            ], 400);
+        }
+
+        $team->update([
+            'supervisor_status' => 'rejected',
+            'is_approved' => false,
+        ]);
+
+        $team->load(['project', 'members.student.user']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم رفض الفريق',
+            'data' => new TeamResource($team),
+        ]);
+    }
+}

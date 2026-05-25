@@ -1,0 +1,185 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+
+<linearGradient id="capMainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#C8A2FF"/>
+<stop offset="35%" stop-color="#FFB6D9"/>
+<stop offset="70%" stop-color="#7FD6FF"/>
+<stop offset="100%" stop-color="#FFE680"/>
+</linearGradient>
+
+<linearGradient id="capTopSurface" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#FFB6D9"/>
+<stop offset="50%" stop-color="#C8A2FF"/>
+<stop offset="100%" stop-color="#7FD6FF"/>
+</linearGradient>
+
+<linearGradient id="capDepth" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#8E6BFF"/>
+<stop offset="100%" stop-color="#5EC8FF"/>
+</linearGradient>
+
+<linearGradient id="tasselGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#7FD6FF"/>
+<stop offset="50%" stop-color="#FFB6D9"/>
+<stop offset="100%" stop-color="#C8A2FF"/>
+</linearGradient>
+
+<linearGradient id="textPremium" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#C8A2FF"/>
+<stop offset="25%" stop-color="#FFB6D9"/>
+<stop offset="50%" stop-color="#7FD6FF"/>
+<stop offset="75%" stop-color="#FFE680"/>
+<stop offset="100%" stop-color="#C8A2FF"/>
+</linearGradient>
+
+<linearGradient id="forgeAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#7FD6FF"/>
+<stop offset="50%" stop-color="#FFE680"/>
+<stop offset="100%" stop-color="#FFB6D9"/>
+</linearGradient>
+
+<radialGradient id="glowEffect" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#C8A2FF" stop-opacity="0.7"/>
+<stop offset="50%" stop-color="#FFB6D9" stop-opacity="0.3"/>
+<stop offset="100%" stop-color="#FFE680" stop-opacity="0"/>
+</radialGradient>
+
+<filter id="premiumGlow" x="-100%" y="-100%" width="300%" height="300%">
+<feGaussianBlur stdDeviation="10" result="blur"/>
+<feMerge>
+<feMergeNode in="blur"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+
+<filter id="softDepth">
+<feDropShadow dx="0" dy="6" stdDeviation="8" flood-opacity="0.25"/>
+</filter>
+
+<filter id="textGlow" x="-50%" y="-50%" width="200%" height="200%">
+<feGaussianBlur stdDeviation="3" result="blur"/>
+<feMerge>
+<feMergeNode in="blur"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+
+</defs>
+
+<!-- Background Glow -->
+<ellipse cx="260" cy="210" rx="180" ry="90"
+fill="url(#glowEffect)" opacity="0.5"/>
+
+<!-- Graduation Cap -->
+<g filter="url(#premiumGlow)">
+
+<!-- Shadow -->
+<ellipse cx="280" cy="230" rx="120" ry="28"
+fill="#7A5CFF"
+opacity="0.18"/>
+
+<!-- Bottom Layer -->
+<path d="M160 185 L280 225 L400 185 L400 210 L280 250 L160 210 Z"
+fill="url(#capDepth)"
+opacity="0.95"/>
+
+<!-- Top Layer -->
+<path d="M160 165 L280 120 L400 165 L280 210 Z"
+fill="url(#capTopSurface)"
+stroke="#FFFFFF"
+stroke-width="3"
+filter="url(#softDepth)"/>
+
+<!-- Highlight -->
+<path d="M280 120 L400 165"
+stroke="#FFFFFF"
+stroke-width="4"
+opacity="0.45"/>
+
+<!-- Side Depth -->
+<path d="M160 165 L280 210"
+stroke="#5A35FF"
+stroke-width="5"
+opacity="0.35"/>
+
+<!-- Center Circle -->
+<circle cx="280" cy="180" r="14"
+fill="#FFFFFF"
+opacity="0.95"/>
+
+<circle cx="280" cy="180" r="8"
+fill="url(#capMainGradient)"/>
+
+<!-- Tassel -->
+<line x1="280" y1="180"
+x2="335" y2="255"
+stroke="url(#tasselGradient)"
+stroke-width="5"
+stroke-linecap="round"/>
+
+<!-- Tassel Ball -->
+<circle cx="335" cy="255" r="10"
+fill="url(#tasselGradient)"/>
+
+<!-- Tassel Threads -->
+<path d="M335 265 L328 285
+M335 265 L335 290
+M335 265 L342 285"
+stroke="url(#tasselGradient)"
+stroke-width="4"
+stroke-linecap="round"/>
+
+</g>
+
+<!-- Logo Text -->
+<g filter="url(#textGlow)">
+
+<!-- Project -->
+<text x="430" y="220"
+font-family="'SF Pro Display','Segoe UI',sans-serif"
+font-size="95"
+font-weight="300"
+letter-spacing="0"
+fill="url(#textPremium)">Project</text>
+
+<!-- Forge -->
+<text x="705" y="220"
+font-family="'SF Pro Display','Segoe UI',sans-serif"
+font-size="95"
+font-weight="700"
+letter-spacing="0"
+fill="url(#forgeAccent)">Forge</text>
+
+</g>
+
+<!-- Tagline -->
+<text x="430" y="265"
+font-family="'SF Pro Display','Segoe UI',sans-serif"
+font-size="18"
+font-weight="300"
+letter-spacing="4"
+fill="#C8A2FF"
+opacity="0.75">
+AI GRADUATION PROJECT ASSISTANT
+</text>
+
+<!-- Decorative Line -->
+<line x1="430" y1="282"
+x2="860" y2="282"
+stroke="url(#capMainGradient)"
+stroke-width="2"
+opacity="0.45"
+stroke-linecap="round"/>
+
+<!-- Decorative Dots -->
+<circle cx="420" cy="282" r="3"
+fill="#C8A2FF"
+opacity="0.6"/>
+
+<circle cx="872" cy="282" r="3"
+fill="#7FD6FF"
+opacity="0.6"/>
+
+</svg>

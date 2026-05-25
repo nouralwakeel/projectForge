@@ -45,6 +45,7 @@ class AuthController extends GetxController {
   String _routeForUser(UserModel? user) {
     if (user == null) return AppRoutes.login;
     if (user.role == 'admin') return AppRoutes.adminDashboard;
+    if (user.role == 'advisor') return AppRoutes.advisorDashboard;
     if (user.skills == null || user.skills!.isEmpty) return AppRoutes.survey;
     return AppRoutes.home;
   }

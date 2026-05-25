@@ -1,5 +1,6 @@
 abstract class AppRoutes {
   static const String splash = '/splash';
+  static const String intro = '/intro';
   static const String login = '/login';
   static const String register = '/register';
   static const String survey = '/survey';
@@ -17,4 +18,6 @@ abstract class AppRoutes {
   static const String adminProjects = '/admin/projects';
   static const String adminMajors = '/admin/majors';
   static const String adminSkills = '/admin/skills';
+  static const String advisorDashboard = '/advisor-dashboard';
+  static const String advisorTeamRequests = '/advisor/team-requests';
 }
