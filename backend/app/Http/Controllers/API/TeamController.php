@@ -59,7 +59,7 @@ class TeamController extends Controller
 
     public function show(string $id)
     {
-        $team = Team::with(['project', 'members.student'])->find($id);
+        $team = Team::with(['project', 'members.user'])->find($id);
 
         if (!$team) {
             return response()->json([

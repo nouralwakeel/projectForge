@@ -334,7 +334,7 @@ class _SplashScreenState extends State<SplashScreen>
               style: TextStyle(
                 fontSize: 34,
                 fontWeight: FontWeight.w800,
-                color: AppTheme.darkColor,
+                color: AppTheme.primaryColor,
                 letterSpacing: -0.5,
               ),
             ),
@@ -343,8 +343,8 @@ class _SplashScreenState extends State<SplashScreen>
               'منصة إدارة مشاريع التخرج الذكية',
               style: TextStyle(
                 fontSize: 15,
-                color: AppTheme.onSurfaceVariant,
-                fontWeight: FontWeight.w400,
+                color: AppTheme.darkColor,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 32),

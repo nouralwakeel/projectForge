@@ -73,7 +73,7 @@ class SuccessEstimationController extends Controller
 
     public function estimateTeam($teamId)
     {
-        $team = Team::with(['members.student.skills', 'project.skills'])->find($teamId);
+        $team = Team::with(['members.skills', 'project.skills'])->find($teamId);
 
         if (!$team) {
             return response()->json([
@@ -93,7 +93,7 @@ class SuccessEstimationController extends Controller
 
         $teamSkills = collect();
         foreach ($team->members as $member) {
-            $memberSkills = StudentSkill::where('student_id', $member->student_id)
+            $memberSkills = StudentSkill::where('student_id', $member->id)
                 ->get();
             foreach ($memberSkills as $skill) {
                 if ($teamSkills->has($skill->skill_id)) {
@@ -200,7 +200,7 @@ class SuccessEstimationController extends Controller
 
         $skillCounts = collect();
         foreach ($members as $member) {
-            $memberSkills = StudentSkill::where('student_id', $member->student_id)->get();
+            $memberSkills = StudentSkill::where('student_id', $member->id)->get();
             foreach ($memberSkills as $skill) {
                 $skillCounts[$skill->skill_id] = ($skillCounts[$skill->skill_id] ?? 0) + 1;
             }

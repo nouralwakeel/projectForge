@@ -16,7 +16,7 @@ class AdvisorController extends Controller
         $advisor = auth()->user();
 
         $projects = Project::where('supervisor_id', $advisor->id)
-            ->with(['type', 'teams.members.student.user', 'skills'])
+            ->with(['type', 'teams.members.user', 'skills'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -55,13 +55,13 @@ class AdvisorController extends Controller
             $query->where('supervisor_status', $status);
         }
 
-        $teams = $query->with(['project', 'members.student.user'])
+        $teams = $query->with(['project', 'members.user'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
         return response()->json([
             'success' => true,
-            'data' => $teams,
+            'data' => TeamResource::collection($teams),
         ]);
     }
 
@@ -91,7 +91,7 @@ class AdvisorController extends Controller
             'is_approved' => true,
         ]);
 
-        $team->load(['project', 'members.student.user']);
+        $team->load(['project', 'members.user']);
 
         return response()->json([
             'success' => true,
@@ -126,7 +126,7 @@ class AdvisorController extends Controller
             'is_approved' => false,
         ]);
 
-        $team->load(['project', 'members.student.user']);
+        $team->load(['project', 'members.user']);
 
         return response()->json([
             'success' => true,

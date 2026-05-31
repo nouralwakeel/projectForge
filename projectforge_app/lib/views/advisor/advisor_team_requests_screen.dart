@@ -117,40 +117,38 @@ class AdvisorTeamRequestsScreen extends StatelessWidget {
             ),
           ],
         ),
-        bottomNavigationBar: Obx(() {
-          return BottomNavigationBar(
-            currentIndex: 1,
-            onTap: (index) {
-              if (index == 0) {
-                Get.offAllNamed(AppRoutes.advisorDashboard);
-              } else if (index == 2) {
-                Get.toNamed(AppRoutes.profile);
-              }
-            },
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_outlined),
-                activeIcon: Icon(Icons.dashboard),
-                label: 'الرئيسية',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.group_add_outlined),
-                activeIcon: Icon(Icons.group_add),
-                label: 'طلبات الفرق',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                activeIcon: Icon(Icons.person),
-                label: 'الملف الشخصي',
-              ),
-            ],
-            selectedItemColor: AppTheme.primaryColor,
-            unselectedItemColor: AppTheme.greyColor,
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
-            elevation: 8,
-          );
-        }),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 1,
+          onTap: (index) {
+            if (index == 0) {
+              Get.offAllNamed(AppRoutes.advisorDashboard);
+            } else if (index == 2) {
+              Get.toNamed(AppRoutes.profile);
+            }
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard_outlined),
+              activeIcon: Icon(Icons.dashboard),
+              label: 'الرئيسية',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group_add_outlined),
+              activeIcon: Icon(Icons.group_add),
+              label: 'طلبات الفرق',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'الملف الشخصي',
+            ),
+          ],
+          selectedItemColor: AppTheme.primaryColor,
+          unselectedItemColor: AppTheme.greyColor,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          elevation: 8,
+        ),
       ),
     );
   }

@@ -112,12 +112,23 @@ class _IntroScreenState extends State<IntroScreen>
                         width: 280,
                         height: 100,
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'ProjectForge',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.primaryColor,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       const Text(
                         'نظام إدارة مشاريع التخرج',
                         style: TextStyle(
                           fontSize: 16,
-                          color: AppTheme.greyColor,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.primaryColor,
                         ),
                       ),
                       const SizedBox(height: 8),

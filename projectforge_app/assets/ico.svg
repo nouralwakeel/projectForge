@@ -4,30 +4,30 @@
 
     <!-- Background Gradient -->
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C8A2FF"/>
-      <stop offset="35%" stop-color="#FFB6D9"/>
-      <stop offset="70%" stop-color="#7FD6FF"/>
-      <stop offset="100%" stop-color="#FFE680"/>
+      <stop offset="0%" stop-color="#8B3FD4"/>
+      <stop offset="35%" stop-color="#D4568A"/>
+      <stop offset="70%" stop-color="#2E8BC0"/>
+      <stop offset="100%" stop-color="#E6A817"/>
     </linearGradient>
 
     <!-- Cap Gradient -->
     <linearGradient id="capGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFB6D9"/>
-      <stop offset="50%" stop-color="#C8A2FF"/>
-      <stop offset="100%" stop-color="#7FD6FF"/>
+      <stop offset="0%" stop-color="#D4568A"/>
+      <stop offset="50%" stop-color="#8B3FD4"/>
+      <stop offset="100%" stop-color="#2E8BC0"/>
     </linearGradient>
 
     <!-- Depth Gradient -->
     <linearGradient id="depthGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#7B5CFF"/>
-      <stop offset="100%" stop-color="#4FC3FF"/>
+      <stop offset="0%" stop-color="#5B2C9D"/>
+      <stop offset="100%" stop-color="#1A73B5"/>
     </linearGradient>
 
     <!-- Tassel Gradient -->
     <linearGradient id="tasselGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#7FD6FF"/>
-      <stop offset="50%" stop-color="#FFB6D9"/>
-      <stop offset="100%" stop-color="#C8A2FF"/>
+      <stop offset="0%" stop-color="#2E8BC0"/>
+      <stop offset="50%" stop-color="#D4568A"/>
+      <stop offset="100%" stop-color="#8B3FD4"/>
     </linearGradient>
 
     <!-- Glow -->

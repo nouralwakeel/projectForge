@@ -86,17 +86,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final isWide = constraints.maxWidth >= 600;
-                    return IntrinsicHeight(
-                      child: Flex(
-                        direction: isWide ? Axis.horizontal : Axis.vertical,
-                        children: [
-                          Flexible(
-                            flex: isWide ? 1 : 0,
-                            fit: isWide ? FlexFit.tight : FlexFit.loose,
-                            child: Container(
-                              width: isWide ? null : double.infinity,
-                              padding: EdgeInsets.all(isWide ? 48 : 24),
-                              child: Form(
+                    final formChild = Container(
+                      width: isWide ? null : double.infinity,
+                      padding: EdgeInsets.all(isWide ? 48 : 24),
+                      child: Form(
                                 key: formKey,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -609,6 +602,113 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                     );
+                    if (isWide) {
+                      return IntrinsicHeight(
+                        child: Flex(
+                          direction: Axis.horizontal,
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              fit: FlexFit.tight,
+                              child: formChild,
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
+                                    colors: [
+                                      Color(0xCCF472B6),
+                                      Color(0x66C084FC),
+                                    ],
+                                  ),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      color: AppTheme.surfaceContainerHigh,
+                                    ),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topRight,
+                                          end: Alignment.bottomLeft,
+                                          colors: [
+                                            Color(0xCCF472B6),
+                                            Color(0x66C084FC),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                            sigmaX: 10,
+                                            sigmaY: 10,
+                                          ),
+                                          child: Container(
+                                            margin: const EdgeInsets.all(48),
+                                            padding: const EdgeInsets.all(24),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.3),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  Icons.auto_awesome,
+                                                  size: 40,
+                                                  color: Colors.white,
+                                                ),
+                                                const SizedBox(height: 8),
+                                                const Text(
+                                                  'نظم أفكارك',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 24,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  'بيئة مثالية لإدارة مشاريعك الجامعية بكفاءة وإبداع.',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.white
+                                                        .withValues(alpha: 0.9),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return formChild;
                   },
                 ),
               ),

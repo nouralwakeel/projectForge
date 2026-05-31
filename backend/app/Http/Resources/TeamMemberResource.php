@@ -11,10 +11,12 @@ class TeamMemberResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'student_id' => $this->student_id,
-            'team_id' => $this->team_id,
-            'role_in_team' => $this->role_in_team,
-            'student' => new StudentResource($this->whenLoaded('student')),
+            'role_in_team' => $this->whenPivotLoaded('team_members', fn() => $this->pivot->role_in_team),
+            'student' => [
+                'id' => $this->id,
+                'full_name' => trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? '')),
+                'user' => new UserResource($this->whenLoaded('user')),
+            ],
         ];
     }
 }
