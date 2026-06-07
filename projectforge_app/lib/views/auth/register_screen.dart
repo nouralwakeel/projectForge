@@ -90,518 +90,421 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       width: isWide ? null : double.infinity,
                       padding: EdgeInsets.all(isWide ? 48 : 24),
                       child: Form(
-                                key: formKey,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'ProjectForge',
-                                      textAlign: TextAlign.end,
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: -0.02,
-                                        color: AppTheme.primaryColor,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'إنشاء حساب جديد',
-                                      textAlign: TextAlign.end,
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.4,
-                                        color: AppTheme.onSurface,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'انضم إلينا لبدء رحلتك الأكاديمية.',
-                                      textAlign: TextAlign.end,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        height: 1.6,
-                                        color: AppTheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    _buildLabel('الاسم الكامل'),
-                                    const SizedBox(height: 4),
-                                    _buildTextField(
-                                      controller: fullNameCtrl,
-                                      hint: 'أحمد المحمد',
-                                      icon: Icons.person_outline,
-                                      validator: (v) =>
-                                          v!.isEmpty ? 'مطلوب' : null,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildLabel('الرقم الجامعي'),
-                                    const SizedBox(height: 4),
-                                    _buildTextField(
-                                      controller: studNumCtrl,
-                                      hint: '20210001',
-                                      icon: Icons.badge_outlined,
-                                      keyboardType: TextInputType.number,
-                                      validator: (v) {
-                                        if (v == null || v.isEmpty) return 'مطلوب';
-                                        if (!RegExp(r'^\d{4,20}$').hasMatch(v)) {
-                                          return 'أدخل رقماً جامعياً صحيحاً';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildLabel('الجنس'),
-                                    const SizedBox(height: 4),
-                                    DropdownButtonFormField<String>(
-                                      initialValue: selectedGender,
-                                      decoration: _inputDecoration(
-                                        hint: 'اختر الجنس',
-                                        icon: Icons.person_outline,
-                                      ),
-                                      items: const [
-                                        DropdownMenuItem(
-                                          value: 'male',
-                                          child: Text('ذكر'),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: 'female',
-                                          child: Text('أنثى'),
-                                        ),
-                                      ],
-                                      onChanged: (v) =>
-                                          setState(() => selectedGender = v),
-                                      validator: (_) =>
-                                          selectedGender == null
-                                              ? 'مطلوب'
-                                              : null,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildLabel('تاريخ الميلاد'),
-                                    const SizedBox(height: 4),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        final now = DateTime.now();
-                                        final picked = await showDatePicker(
-                                          context: context,
-                                          initialDate: DateTime(now.year - 22, now.month, now.day),
-                                          firstDate: DateTime(now.year - 60),
-                                          lastDate: DateTime(now.year - 16),
-                                          locale: const Locale('ar'),
-                                        );
-                                        if (picked != null) {
-                                          setState(() {
-                                            selectedDateOfBirth = picked;
-                                            dobDisplayCtrl.text =
-                                                '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                                          });
-                                        }
-                                      },
-                                      child: AbsorbPointer(
-                                        child: TextFormField(
-                                          controller: dobDisplayCtrl,
-                                          decoration: _inputDecoration(
-                                            hint: '2000-01-01',
-                                            icon: Icons.cake_outlined,
-                                          ),
-                                          validator: (_) =>
-                                              selectedDateOfBirth == null
-                                                  ? 'مطلوب'
-                                                  : null,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildLabel('التخصص الجامعي'),
-                                    const SizedBox(height: 4),
-                                    Obx(() {
-                                      if (controller.isLoadingMajors.value) {
-                                        return DropdownButtonFormField<int>(
-                                          decoration: _inputDecoration(
-                                            hint: 'جاري التحميل...',
-                                            icon: Icons.school_outlined,
-                                          ),
-                                          items: const [],
-                                          onChanged: null,
-                                          validator: (_) => 'مطلوب',
-                                        );
-                                      }
-                                      final items = controller.majors
-                                          .map((m) => DropdownMenuItem<int>(
-                                                value: m.id,
-                                                child: Text(m.name),
-                                              ))
-                                          .toList();
-                                      return Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          DropdownButtonFormField<int>(
-                                            initialValue: controller.selectedMajor.value,
-                                            decoration: _inputDecoration(
-                                              hint: 'هندسة البرمجيات',
-                                              icon: Icons.school_outlined,
-                                            ),
-                                            items: items,
-                                            onChanged: items.isEmpty
-                                                ? null
-                                                : (v) => controller.selectedMajor.value = v,
-                                            validator: (_) =>
-                                                controller.selectedMajor.value == null
-                                                    ? 'مطلوب'
-                                                    : null,
-                                          ),
-                                          if (controller.majorsError.value.isNotEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 4),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    controller.majorsError.value,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: AppTheme.errorColor,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  GestureDetector(
-                                                    onTap: controller.loadMajors,
-                                                    child: Text(
-                                                      'إعادة المحاولة',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: AppTheme.primaryColor,
-                                                        fontWeight: FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                        ],
-                                      );
-                                    }),
-                                    const SizedBox(height: 16),
-                                    _buildLabel('البريد الإلكتروني'),
-                                    const SizedBox(height: 4),
-                                    _buildTextField(
-                                      controller: emailCtrl,
-                                      hint: 'student@university.edu',
-                                      icon: Icons.mail_outline,
-                                      keyboardType: TextInputType.emailAddress,
-                                      validator: (v) {
-                                        if (v == null || v.isEmpty) return 'مطلوب';
-                                        if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v)) {
-                                          return 'صيغة البريد الإلكتروني غير صحيحة';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildLabel('كلمة المرور'),
-                                    const SizedBox(height: 4),
-                                    _buildTextField(
-                                      controller: passwordCtrl,
-                                      hint: '••••••••',
-                                      icon: Icons.lock_outline,
-                                      obscure: true,
-                                      validator: (v) => (v == null || v.length < 8)
-                                          ? '8 أحرف على الأقل'
+                        key: formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'ProjectForge',
+                              textAlign: TextAlign.end,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.02,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'إنشاء حساب جديد',
+                              textAlign: TextAlign.end,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                height: 1.4,
+                                color: AppTheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'انضم إلينا لبدء رحلتك الأكاديمية.',
+                              textAlign: TextAlign.end,
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 1.6,
+                                color: AppTheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildLabel('الاسم الكامل'),
+                            const SizedBox(height: 4),
+                            _buildTextField(
+                              controller: fullNameCtrl,
+                              hint: 'أحمد المحمد',
+                              icon: Icons.person_outline,
+                              validator: (v) =>
+                                  v!.isEmpty ? 'مطلوب' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildLabel('الرقم الجامعي'),
+                            const SizedBox(height: 4),
+                            _buildTextField(
+                              controller: studNumCtrl,
+                              hint: '20210001',
+                              icon: Icons.badge_outlined,
+                              keyboardType: TextInputType.number,
+                              validator: (v) {
+                                if (v == null || v.isEmpty) return 'مطلوب';
+                                if (!RegExp(r'^\d{4,20}$').hasMatch(v)) {
+                                  return 'أدخل رقماً جامعياً صحيحاً';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildLabel('الجنس'),
+                            const SizedBox(height: 4),
+                            DropdownButtonFormField<String>(
+                              initialValue: selectedGender,
+                              decoration: _inputDecoration(
+                                hint: 'اختر الجنس',
+                                icon: Icons.person_outline,
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 'male',
+                                  child: Text('ذكر'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'female',
+                                  child: Text('أنثى'),
+                                ),
+                              ],
+                              onChanged: (v) =>
+                                  setState(() => selectedGender = v),
+                              validator: (_) =>
+                                  selectedGender == null
+                                      ? 'مطلوب'
+                                      : null,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildLabel('تاريخ الميلاد'),
+                            const SizedBox(height: 4),
+                            GestureDetector(
+                              onTap: () async {
+                                final now = DateTime.now();
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime(now.year - 22, now.month, now.day),
+                                  firstDate: DateTime(now.year - 60),
+                                  lastDate: DateTime(now.year - 16),
+                                  locale: const Locale('ar'),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    selectedDateOfBirth = picked;
+                                    dobDisplayCtrl.text =
+                                        '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+                                  });
+                                }
+                              },
+                              child: AbsorbPointer(
+                                child: TextFormField(
+                                  controller: dobDisplayCtrl,
+                                  decoration: _inputDecoration(
+                                    hint: '2000-01-01',
+                                    icon: Icons.cake_outlined,
+                                  ),
+                                  validator: (_) =>
+                                      selectedDateOfBirth == null
+                                          ? 'مطلوب'
                                           : null,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildLabel('تأكيد كلمة المرور'),
-                                    const SizedBox(height: 4),
-                                    _buildTextField(
-                                      controller: passwordConfirmCtrl,
-                                      hint: '••••••••',
-                                      icon: Icons.lock,
-                                      obscure: true,
-                                      validator: (v) =>
-                                          v != passwordCtrl.text
-                                              ? 'كلمة المرور غير متطابقة'
-                                              : null,
-                                    ),
-                                    const SizedBox(height: 24),
-                                    // ── Error banner from server ──────────────
-                                    Obx(() {
-                                      final msg = controller.errorMessage.value;
-                                      if (msg.isEmpty) return const SizedBox.shrink();
-                                      return Container(
-                                        width: double.infinity,
-                                        margin: const EdgeInsets.only(bottom: 16),
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 10),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.errorColor.withValues(alpha: 0.08),
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(
-                                              color: AppTheme.errorColor.withValues(alpha: 0.4)),
-                                        ),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Icon(Icons.error_outline,
-                                                color: AppTheme.errorColor, size: 18),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: Text(
-                                                msg,
-                                                textAlign: TextAlign.start,
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: AppTheme.errorColor,
-                                                  height: 1.5,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }),
-                                    Obx(() => Container(
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: controller.isLoading.value
-                                                ? AppTheme.primaryColor
-                                                    .withValues(alpha: 0.6)
-                                                : AppTheme.primaryColor,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            boxShadow: const [
-                                              BoxShadow(
-                                                color: Color(0x806D0047),
-                                                offset: Offset(0, 2),
-                                                blurRadius: 0,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              onTap: controller.isLoading.value
-                                                  ? null
-                                                  : () {
-                                                      controller.errorMessage.value = '';
-                                                      if (formKey.currentState!
-                                                          .validate()) {
-                                                        final nameParts =
-                                                            fullNameCtrl.text
-                                                                .trim()
-                                                                .split(' ');
-                                                        final dob =
-                                                            selectedDateOfBirth;
-                                                        controller.register({
-                                                          'first_name':
-                                                              nameParts.first,
-                                                          'last_name':
-                                                              nameParts.length >
-                                                                      1
-                                                                  ? nameParts
-                                                                      .sublist(
-                                                                          1)
-                                                                      .join(' ')
-                                                                  : '',
-                                                          'email':
-                                                              emailCtrl.text,
-                                                          'password':
-                                                              passwordCtrl.text,
-                                                          'password_confirmation':
-                                                              passwordConfirmCtrl
-                                                                  .text,
-                                                          'stud_num':
-                                                              studNumCtrl.text,
-                                                          'gender':
-                                                              selectedGender,
-                                                          'date_of_birth': dob !=
-                                                                  null
-                                                              ? '${dob.year}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}'
-                                                              : '',
-                                                          'major_id': controller
-                                                              .selectedMajor
-                                                              .value,
-                                                        });
-                                                      }
-                                                    },
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 8),
-                                                child: Center(
-                                                  child: controller
-                                                          .isLoading.value
-                                                      ? const SizedBox(
-                                                          height: 20,
-                                                          width: 20,
-                                                          child:
-                                                              CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                            color:
-                                                                Colors.white,
-                                                          ),
-                                                        )
-                                                      : Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            Text(
-                                                              'إنشاء حساب',
-                                                              style: TextStyle(
-                                                                fontSize: 13,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                color: AppTheme
-                                                                    .onPrimary,
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                width: 8),
-                                                            Icon(
-                                                              Icons.arrow_back,
-                                                              size: 18,
-                                                              color: AppTheme
-                                                                  .onPrimary,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        )),
-                                    const SizedBox(height: 24),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'لديك حساب بالفعل؟ ',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: AppTheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () =>
-                                              Get.toNamed(AppRoutes.login),
-                                          child: Text(
-                                            'تسجيل الدخول',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppTheme.primaryColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
                                 ),
                               ),
                             ),
-                          ),
-                          if (isWide)
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topRight,
-                                    end: Alignment.bottomLeft,
-                                    colors: [
-                                      Color(0xCCF472B6),
-                                      Color(0x66C084FC),
+                            const SizedBox(height: 16),
+                            _buildLabel('التخصص الجامعي'),
+                            const SizedBox(height: 4),
+                            Obx(() {
+                              if (controller.isLoadingMajors.value) {
+                                return DropdownButtonFormField<int>(
+                                  decoration: _inputDecoration(
+                                    hint: 'جاري التحميل...',
+                                    icon: Icons.school_outlined,
+                                  ),
+                                  items: const [],
+                                  onChanged: null,
+                                  validator: (_) => 'مطلوب',
+                                );
+                              }
+                              final items = controller.majors
+                                  .map((m) => DropdownMenuItem<int>(
+                                        value: m.id,
+                                        child: Text(m.name),
+                                      ))
+                                  .toList();
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  DropdownButtonFormField<int>(
+                                    initialValue: controller.selectedMajor.value,
+                                    decoration: _inputDecoration(
+                                      hint: 'هندسة البرمجيات',
+                                      icon: Icons.school_outlined,
+                                    ),
+                                    items: items,
+                                    onChanged: items.isEmpty
+                                        ? null
+                                        : (v) => controller.selectedMajor.value = v,
+                                    validator: (_) =>
+                                        controller.selectedMajor.value == null
+                                            ? 'مطلوب'
+                                            : null,
+                                  ),
+                                  if (controller.majorsError.value.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            controller.majorsError.value,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.errorColor,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          GestureDetector(
+                                            onTap: controller.loadMajors,
+                                            child: Text(
+                                              'إعادة المحاولة',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppTheme.primaryColor,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              );
+                            }),
+                            const SizedBox(height: 16),
+                            _buildLabel('البريد الإلكتروني'),
+                            const SizedBox(height: 4),
+                            _buildTextField(
+                              controller: emailCtrl,
+                              hint: 'student@university.edu',
+                              icon: Icons.mail_outline,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (v) {
+                                if (v == null || v.isEmpty) return 'مطلوب';
+                                if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v)) {
+                                  return 'صيغة البريد الإلكتروني غير صحيحة';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildLabel('كلمة المرور'),
+                            const SizedBox(height: 4),
+                            _buildTextField(
+                              controller: passwordCtrl,
+                              hint: '••••••••',
+                              icon: Icons.lock_outline,
+                              obscure: true,
+                              validator: (v) => (v == null || v.length < 8)
+                                  ? '8 أحرف على الأقل'
+                                  : null,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildLabel('تأكيد كلمة المرور'),
+                            const SizedBox(height: 4),
+                            _buildTextField(
+                              controller: passwordConfirmCtrl,
+                              hint: '••••••••',
+                              icon: Icons.lock,
+                              obscure: true,
+                              validator: (v) =>
+                                  v != passwordCtrl.text
+                                      ? 'كلمة المرور غير متطابقة'
+                                      : null,
+                            ),
+                            const SizedBox(height: 24),
+                            Obx(() {
+                              final msg = controller.errorMessage.value;
+                              if (msg.isEmpty) return const SizedBox.shrink();
+                              return Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.errorColor.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: AppTheme.errorColor.withValues(alpha: 0.4)),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.error_outline,
+                                        color: AppTheme.errorColor, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        msg,
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppTheme.errorColor,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                            Obx(() => Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: controller.isLoading.value
+                                        ? AppTheme.primaryColor
+                                            .withValues(alpha: 0.6)
+                                        : AppTheme.primaryColor,
+                                    borderRadius:
+                                        BorderRadius.circular(8),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x806D0047),
+                                        offset: Offset(0, 2),
+                                        blurRadius: 0,
+                                      ),
                                     ],
                                   ),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      color: AppTheme.surfaceContainerHigh,
-                                    ),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topRight,
-                                          end: Alignment.bottomLeft,
-                                          colors: [
-                                            Color(0xCCF472B6),
-                                            Color(0x66C084FC),
-                                          ],
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius:
+                                          BorderRadius.circular(8),
+                                      onTap: controller.isLoading.value
+                                          ? null
+                                          : () {
+                                              controller.errorMessage.value = '';
+                                              if (formKey.currentState!
+                                                  .validate()) {
+                                                final nameParts =
+                                                    fullNameCtrl.text
+                                                        .trim()
+                                                        .split(' ');
+                                                final dob =
+                                                    selectedDateOfBirth;
+                                                controller.register({
+                                                  'first_name':
+                                                      nameParts.first,
+                                                  'last_name':
+                                                      nameParts.length >
+                                                              1
+                                                          ? nameParts
+                                                              .sublist(
+                                                                  1)
+                                                              .join(' ')
+                                                          : '',
+                                                  'email':
+                                                      emailCtrl.text,
+                                                  'password':
+                                                      passwordCtrl.text,
+                                                  'password_confirmation':
+                                                      passwordConfirmCtrl
+                                                          .text,
+                                                  'stud_num':
+                                                      studNumCtrl.text,
+                                                  'gender':
+                                                      selectedGender,
+                                                  'date_of_birth': dob !=
+                                                          null
+                                                      ? '${dob.year}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}'
+                                                      : '',
+                                                  'major_id': controller
+                                                      .selectedMajor
+                                                      .value,
+                                                });
+                                              }
+                                            },
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 8),
+                                        child: Center(
+                                          child: controller
+                                                  .isLoading.value
+                                              ? const SizedBox(
+                                                  height: 20,
+                                                  width: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    color:
+                                                        Colors.white,
+                                                  ),
+                                                )
+                                              : Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      'إنشاء حساب',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight
+                                                                .w500,
+                                                        color: AppTheme
+                                                            .onPrimary,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                        width: 8),
+                                                    Icon(
+                                                      Icons.arrow_back,
+                                                      size: 18,
+                                                      color: AppTheme
+                                                          .onPrimary,
+                                                    ),
+                                                  ],
+                                                ),
                                         ),
                                       ),
                                     ),
-                                    Center(
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(12),
-                                        child: BackdropFilter(
-                                          filter: ImageFilter.blur(
-                                            sigmaX: 10,
-                                            sigmaY: 10,
-                                          ),
-                                          child: Container(
-                                            margin: const EdgeInsets.all(48),
-                                            padding: const EdgeInsets.all(24),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white
-                                                  .withValues(alpha: 0.2),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.3),
-                                              ),
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  Icons.auto_awesome,
-                                                  size: 40,
-                                                  color: Colors.white,
-                                                ),
-                                                const SizedBox(height: 8),
-                                                const Text(
-                                                  'نظم أفكارك',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  'بيئة مثالية لإدارة مشاريعك الجامعية بكفاءة وإبداع.',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.white
-                                                        .withValues(alpha: 0.9),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
+                                )),
+                            const SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'لديك حساب بالفعل؟ ',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppTheme.onSurfaceVariant,
+                                  ),
                                 ),
-                              ),
+                                GestureDetector(
+                                  onTap: () =>
+                                      Get.toNamed(AppRoutes.login),
+                                  child: Text(
+                                    'تسجيل الدخول',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
+
                     if (isWide) {
                       return IntrinsicHeight(
                         child: Flex(
@@ -614,95 +517,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             Expanded(
                               flex: 1,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topRight,
-                                    end: Alignment.bottomLeft,
-                                    colors: [
-                                      Color(0xCCF472B6),
-                                      Color(0x66C084FC),
-                                    ],
-                                  ),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      color: AppTheme.surfaceContainerHigh,
-                                    ),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topRight,
-                                          end: Alignment.bottomLeft,
-                                          colors: [
-                                            Color(0xCCF472B6),
-                                            Color(0x66C084FC),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(12),
-                                        child: BackdropFilter(
-                                          filter: ImageFilter.blur(
-                                            sigmaX: 10,
-                                            sigmaY: 10,
-                                          ),
-                                          child: Container(
-                                            margin: const EdgeInsets.all(48),
-                                            padding: const EdgeInsets.all(24),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white
-                                                  .withValues(alpha: 0.2),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.3),
-                                              ),
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  Icons.auto_awesome,
-                                                  size: 40,
-                                                  color: Colors.white,
-                                                ),
-                                                const SizedBox(height: 8),
-                                                const Text(
-                                                  'نظم أفكارك',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  'بيئة مثالية لإدارة مشاريعك الجامعية بكفاءة وإبداع.',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.white
-                                                        .withValues(alpha: 0.9),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              child: _buildDecorativePanel(),
                             ),
                           ],
                         ),
@@ -715,6 +530,93 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDecorativePanel() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            Color(0xCCF472B6),
+            Color(0x66C084FC),
+          ],
+        ),
+      ),
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: AppTheme.surfaceContainerHigh,
+          ),
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Color(0xCCF472B6),
+                  Color(0x66C084FC),
+                ],
+              ),
+            ),
+          ),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 10,
+                  sigmaY: 10,
+                ),
+                child: Container(
+                  margin: const EdgeInsets.all(48),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'نظم أفكارك',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'بيئة مثالية لإدارة مشاريعك الجامعية بكفاءة وإبداع.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
