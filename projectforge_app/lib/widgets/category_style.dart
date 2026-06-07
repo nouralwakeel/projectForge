@@ -7,8 +7,6 @@ class CategoryStyle {
   final Color profActiveBg;
   final Color profActiveText;
   final String englishTitle;
-  final bool useSideBySideLayout;
-  final bool useSkillGrid;
   final IconData icon;
 
   const CategoryStyle({
@@ -17,8 +15,6 @@ class CategoryStyle {
     required this.profActiveBg,
     required this.profActiveText,
     required this.englishTitle,
-    required this.useSideBySideLayout,
-    required this.useSkillGrid,
     required this.icon,
   });
 
@@ -31,8 +27,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Frontend',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.web,
     ),
     'Programming Languages': CategoryStyle(
@@ -41,8 +35,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Programming Languages',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.code,
     ),
     'Backend': CategoryStyle(
@@ -51,8 +43,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Backend',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.dns,
     ),
     'Databases': CategoryStyle(
@@ -61,8 +51,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Databases',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.storage,
     ),
     'AI/ML': CategoryStyle(
@@ -71,8 +59,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'AI/ML',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.psychology,
     ),
     'Tools': CategoryStyle(
@@ -81,8 +67,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Tools',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.build,
     ),
     'Cloud': CategoryStyle(
@@ -91,8 +75,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Cloud',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.cloud,
     ),
     'Design': CategoryStyle(
@@ -101,8 +83,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Design',
-      useSideBySideLayout: false,
-      useSkillGrid: false,
       icon: Icons.palette,
     ),
     'Cybersecurity': CategoryStyle(
@@ -111,8 +91,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Cybersecurity',
-      useSideBySideLayout: true,
-      useSkillGrid: false,
       icon: Icons.security,
     ),
     'IoT': CategoryStyle(
@@ -121,8 +99,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'IoT',
-      useSideBySideLayout: true,
-      useSkillGrid: false,
       icon: Icons.electrical_services,
     ),
     'Soft Skills': CategoryStyle(
@@ -131,8 +107,6 @@ class CategoryStyle {
       profActiveBg: AppTheme.primaryColor,
       profActiveText: AppTheme.onPrimary,
       englishTitle: 'Soft Skills',
-      useSideBySideLayout: false,
-      useSkillGrid: true,
       icon: Icons.groups,
     ),
   };

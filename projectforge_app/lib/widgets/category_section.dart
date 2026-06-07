@@ -85,34 +85,17 @@ class CategorySection extends StatelessWidget {
               ),
             ),
             const Divider(height: 1, indent: 16, endIndent: 16),
-            if (categoryStyle.useSkillGrid)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                child: Wrap(
-                  alignment: WrapAlignment.center,
-                  runAlignment: WrapAlignment.center,
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: children
-                      .map((child) => SizedBox(
-                            width: (MediaQuery.of(context).size.width - 76) / 2,
-                            child: child,
-                          ))
-                      .toList(),
-                ),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                child: Column(
-                  children: children
-                      .map((child) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: child,
-                          ))
-                      .toList(),
-                ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+              child: Column(
+                children: children
+                    .map((child) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: child,
+                        ))
+                    .toList(),
               ),
+            ),
           ],
         ),
       ),

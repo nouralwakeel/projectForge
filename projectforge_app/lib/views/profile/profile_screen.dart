@@ -36,9 +36,11 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 24),
               Card(
                 child: Column(children: [
-                  _infoTile('الرقم الجامعي', user.studentId, Icons.badge),
-                  _infoTile('التخصص', user.major?.name ?? 'غير محدد', Icons.school),
-                  _infoTile('المستوى الأكاديمي', '${user.academicLevel ?? "-"}', Icons.stairs),
+                if (user.role == 'student') ...[
+                     _infoTile('الرقم الجامعي', user.studentId, Icons.badge),
+                     _infoTile('التخصص', user.major?.name ?? 'غير محدد', Icons.school),
+                     _infoTile('المستوى الأكاديمي', '${user.academicLevel ?? "-"}', Icons.stairs),
+                   ],
                   _infoTile('الجنس', user.gender == 'male' ? 'ذكر' : 'أنثى', Icons.person),
                   _infoTile('الدور', user.role, Icons.admin_panel_settings),
                 ]),

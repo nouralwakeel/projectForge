@@ -40,13 +40,11 @@ class SkillCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: categoryStyle.useSkillGrid
-            ? CrossAxisAlignment.center
-            : CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             skillName,
-            textAlign: categoryStyle.useSkillGrid ? TextAlign.center : null,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -54,51 +52,17 @@ class SkillCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final useSideBySide =
-                  categoryStyle.useSideBySideLayout && constraints.maxWidth >= 350;
-              return useSideBySide
-                  ? _buildSideBySideLayout()
-                  : _buildStackedLayout();
-            },
-          ),
+          _buildProficiencySection(),
+          const SizedBox(height: 12),
+          _buildInterestSection(),
         ],
       ),
     );
   }
 
-  Widget _buildSideBySideLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: _buildProficiencySection()),
-        Container(
-          width: 1,
-          height: 54,
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          color: AppTheme.outlineVariant.withValues(alpha: 0.3),
-        ),
-        Expanded(child: _buildInterestSection()),
-      ],
-    );
-  }
-
-  Widget _buildStackedLayout() {
-    return Column(
-      children: [
-        _buildProficiencySection(),
-        const SizedBox(height: 12),
-        _buildInterestSection(),
-      ],
-    );
-  }
-
   Widget _buildProficiencySection() {
     return Column(
-      crossAxisAlignment: categoryStyle.useSkillGrid
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           'مستوى المهارة',
@@ -121,9 +85,7 @@ class SkillCard extends StatelessWidget {
 
   Widget _buildInterestSection() {
     return Column(
-      crossAxisAlignment: categoryStyle.useSkillGrid
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           'الاهتمام',

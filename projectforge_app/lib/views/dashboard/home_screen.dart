@@ -1751,11 +1751,11 @@ class _ProfileTab extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          if (user.studentId.isNotEmpty)
+                          if (user.role == 'student' && user.studentId.isNotEmpty)
                             _profileTile('الرقم الجامعي', user.studentId, Icons.badge),
-                          if (user.major != null)
+                          if (user.role == 'student' && user.major != null)
                             _profileTile('التخصص', user.major!.name, Icons.school),
-                          if (user.academicLevel != null)
+                          if (user.role == 'student' && user.academicLevel != null)
                             _profileTile('المستوى الأكاديمي', '${user.academicLevel}', Icons.stairs),
                           _profileTile('الجنس', user.gender == 'male' ? 'ذكر' : 'أنثى', Icons.person),
                         ],
