@@ -69,9 +69,12 @@ class AdvisorDashboardController extends GetxController {
     }
   }
 
-  Future<void> rejectTeam(int teamId) async {
+  Future<void> rejectTeam(int teamId, {required String reason}) async {
     try {
-      final response = await _apiService.put('${ApiConfig.advisorTeamRequests}/$teamId/reject');
+      final response = await _apiService.put(
+        '${ApiConfig.advisorTeamRequests}/$teamId/reject',
+        data: {'rejection_reason': reason},
+      );
       if (response.data['success'] == true) {
         Get.snackbar('نجاح', 'تم رفض الفريق');
         fetchTeamRequests();

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Milestone;
 use App\Models\Project;
 use App\Models\Risk;
-use Illuminate\Http\Request;
 
 class SandboxController extends Controller
 {
@@ -14,10 +13,10 @@ class SandboxController extends Controller
     {
         $project = Project::with(['milestones', 'risks', 'skills'])->find($projectId);
 
-        if (!$project) {
+        if (! $project) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project not found'
+                'message' => 'Project not found',
             ], 404);
         }
 
@@ -38,8 +37,8 @@ class SandboxController extends Controller
             'data' => [
                 'project' => $project,
                 'timeline' => $timeline,
-                'total_estimated_days' => $project->milestones->sum('estimated_days')
-            ]
+                'total_estimated_days' => $project->milestones->sum('estimated_days'),
+            ],
         ]);
     }
 
@@ -54,7 +53,7 @@ class SandboxController extends Controller
                 'title' => $milestoneData['title'],
                 'description' => $milestoneData['description'],
                 'estimated_days' => $milestoneData['estimated_days'],
-                'order_sequence' => $index + 1
+                'order_sequence' => $index + 1,
             ]);
         }
     }
@@ -69,7 +68,7 @@ class SandboxController extends Controller
                 'project_id' => $project->id,
                 'risk_description' => $riskData['description'],
                 'impact_level' => $riskData['impact'],
-                'mitigation_plan' => $riskData['mitigation']
+                'mitigation_plan' => $riskData['mitigation'],
             ]);
         }
     }
@@ -107,7 +106,7 @@ class SandboxController extends Controller
                 ['title' => 'التطوير', 'description' => 'بناء وتطوير النظام', 'estimated_days' => 21],
                 ['title' => 'الاختبار', 'description' => 'اختبار النظام وإصلاح الأخطاء', 'estimated_days' => 7],
                 ['title' => 'النشر والتوثيق', 'description' => 'نشر النظام وتوثيق المشروع', 'estimated_days' => 5],
-            ]
+            ],
         ];
 
         return $templates[$type] ?? $templates['default'];
@@ -135,7 +134,7 @@ class SandboxController extends Controller
                 ['description' => 'تأخر في الجدول الزمني', 'impact' => 'Medium', 'mitigation' => 'وضع مخزون زمني ومتابعة مستمرة'],
                 ['description' => 'نقص الخبرات المطلوبة', 'impact' => 'Medium', 'mitigation' => 'التدريب المبكر والبحث عن موارد بديلة'],
                 ['description' => 'مشاكل تقنية غير متوقعة', 'impact' => 'Low', 'mitigation' => 'وضع خطط بديلة'],
-            ]
+            ],
         ];
 
         $risks = $baseRisks[$type] ?? $baseRisks['default'];
@@ -144,7 +143,7 @@ class SandboxController extends Controller
             $risks[] = [
                 'description' => 'تعقيد المشروع قد يؤدي لتأخير كبير',
                 'impact' => 'High',
-                'mitigation' => 'تقسيم المشروع لأجزاء أصغر وإدارة دقيقة'
+                'mitigation' => 'تقسيم المشروع لأجزاء أصغر وإدارة دقيقة',
             ];
         }
 
@@ -152,7 +151,7 @@ class SandboxController extends Controller
             $risks[] = [
                 'description' => 'احتمالية عدم إكمال المشروع بالكامل',
                 'impact' => 'High',
-                'mitigation' => 'تحديد MVP والتركيز على الأساسيات'
+                'mitigation' => 'تحديد MVP والتركيز على الأساسيات',
             ];
         }
 
@@ -176,7 +175,7 @@ class SandboxController extends Controller
                 'estimated_days' => $milestone->estimated_days,
                 'start_date' => $startDate->format('Y-m-d'),
                 'end_date' => $endDate->format('Y-m-d'),
-                'order' => $milestone->order_sequence
+                'order' => $milestone->order_sequence,
             ];
 
             $totalDays += $milestone->estimated_days;

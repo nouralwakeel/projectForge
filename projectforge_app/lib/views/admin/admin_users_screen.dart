@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../config/app_theme.dart';
-import '../../controllers/admin_dashboard_controller.dart';
 import '../../services/api_service.dart';
 import '../../config/api_config.dart';
 
@@ -17,6 +16,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   List<dynamic> users = [];
   bool isLoading = true;
   String selectedRole = 'all';
+  bool showArchived = false;
 
   @override
   void initState() {
@@ -27,8 +27,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   Future<void> fetchUsers() async {
     setState(() => isLoading = true);
     try {
-      final queryParams = selectedRole != 'all' ? '?role=$selectedRole' : '';
-      final response = await _apiService.get('${ApiConfig.adminUsers}$queryParams');
+      final params = <String, dynamic>{};
+      if (selectedRole != 'all') params['role'] = selectedRole;
+      if (showArchived) params['archived'] = 1;
+      final response =
+          await _apiService.get(ApiConfig.adminUsers, queryParameters: params);
       if (response.data['success'] == true) {
         final data = response.data['data'];
         setState(() {
@@ -42,16 +45,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     }
   }
 
-  Future<void> deleteUser(int userId, String userName) async {
+  Future<void> archiveUser(int userId, String userName) async {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
-        title: const Text('تأكيد الحذف'),
-        content: Text('هل أنت متأكد من حذف المستخدم "$userName"؟'),
+        title: const Text('تأكيد الأرشفة'),
+        content: Text(
+            'سيتم أرشفة حساب "$userName" (لن يتمكن من تسجيل الدخول). يمكنك استعادته لاحقاً. هل تريد المتابعة؟'),
         actions: [
           TextButton(onPressed: () => Get.back(result: false), child: const Text('إلغاء')),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: const Text('حذف', style: TextStyle(color: AppTheme.dangerColor)),
+            child: const Text('أرشفة', style: TextStyle(color: AppTheme.dangerColor)),
           ),
         ],
       ),
@@ -60,10 +64,20 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
     try {
       await _apiService.delete('${ApiConfig.adminUsers}/$userId');
-      Get.snackbar('نجاح', 'تم حذف المستخدم بنجاح');
+      Get.snackbar('نجاح', 'تمت أرشفة الحساب بنجاح');
       fetchUsers();
     } catch (e) {
-      Get.snackbar('خطأ', 'فشل في حذف المستخدم');
+      Get.snackbar('خطأ', 'فشل في أرشفة الحساب');
+    }
+  }
+
+  Future<void> restoreUser(int userId, String userName) async {
+    try {
+      await _apiService.put(ApiConfig.adminUserRestore(userId));
+      Get.snackbar('نجاح', 'تمت استعادة الحساب بنجاح');
+      fetchUsers();
+    } catch (e) {
+      Get.snackbar('خطأ', 'فشل في استعادة الحساب');
     }
   }
 
@@ -74,8 +88,16 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       child: Scaffold(
         backgroundColor: AppTheme.lightColor,
         appBar: AppBar(
-          title: const Text('إدارة المستخدمين'),
+          title: Text(showArchived ? 'الحسابات المؤرشفة' : 'إدارة المستخدمين'),
           actions: [
+            IconButton(
+              tooltip: showArchived ? 'الحسابات النشطة' : 'الحسابات المؤرشفة',
+              onPressed: () {
+                setState(() => showArchived = !showArchived);
+                fetchUsers();
+              },
+              icon: Icon(showArchived ? Icons.people_alt_outlined : Icons.archive_outlined),
+            ),
             IconButton(
               onPressed: fetchUsers,
               icon: const Icon(Icons.refresh),
@@ -204,12 +226,23 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           ),
           if (role != 'admin') ...[
             const SizedBox(width: 8),
-            IconButton(
-              onPressed: () => deleteUser(user['id'], name.isEmpty ? email : name),
-              icon: const Icon(Icons.delete_outline, size: 20, color: AppTheme.dangerColor),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
+            showArchived
+                ? IconButton(
+                    tooltip: 'استعادة',
+                    onPressed: () =>
+                        restoreUser(user['id'], name.isEmpty ? email : name),
+                    icon: const Icon(Icons.restore, size: 20, color: AppTheme.successColor),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  )
+                : IconButton(
+                    tooltip: 'أرشفة',
+                    onPressed: () =>
+                        archiveUser(user['id'], name.isEmpty ? email : name),
+                    icon: const Icon(Icons.archive_outlined, size: 20, color: AppTheme.dangerColor),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
           ],
         ],
       ),

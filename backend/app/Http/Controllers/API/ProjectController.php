@@ -30,7 +30,7 @@ class ProjectController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $projects
+            'data' => $projects,
         ]);
     }
 
@@ -41,15 +41,17 @@ class ProjectController extends Controller
             'description' => $request->description,
             'type_id' => $request->type_id,
             'difficulty_level' => $request->difficulty_level,
+            'academic_year' => $request->academic_year,
+            'semester' => $request->semester,
             'supervisor_id' => $request->supervisor_id ?? auth()->id(),
-            'status' => 'available'
+            'status' => 'available',
         ]);
 
         foreach ($request->skills as $skillData) {
             ProjectSkill::create([
                 'project_id' => $project->id,
                 'skill_id' => $skillData['id'],
-                'weight' => $skillData['weight']
+                'weight' => $skillData['weight'],
             ]);
         }
 
@@ -58,7 +60,7 @@ class ProjectController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Project created successfully',
-            'data' => $project
+            'data' => $project,
         ], 201);
     }
 
@@ -67,16 +69,16 @@ class ProjectController extends Controller
         $project = Project::with(['supervisor', 'type', 'skills', 'milestones', 'risks', 'teams.members'])
             ->find($id);
 
-        if (!$project) {
+        if (! $project) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project not found'
+                'message' => 'Project not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $project
+            'data' => $project,
         ]);
     }
 
@@ -84,10 +86,10 @@ class ProjectController extends Controller
     {
         $project = Project::find($id);
 
-        if (!$project) {
+        if (! $project) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project not found'
+                'message' => 'Project not found',
             ], 404);
         }
 
@@ -96,11 +98,14 @@ class ProjectController extends Controller
             'description' => 'sometimes|required|string',
             'type_id' => 'sometimes|required|exists:project_types,id',
             'difficulty_level' => 'sometimes|required|integer|min:1|max:5',
-            'status' => 'sometimes|required|in:available,in_progress,completed,cancelled'
+            'academic_year' => 'sometimes|nullable|string|max:20',
+            'semester' => 'sometimes|nullable|in:first,second,summer',
+            'status' => 'sometimes|required|in:available,in_progress,completed,cancelled',
         ]);
 
         $project->update($request->only([
-            'title', 'description', 'type_id', 'difficulty_level', 'status'
+            'title', 'description', 'type_id', 'difficulty_level',
+            'academic_year', 'semester', 'status',
         ]));
 
         if ($request->has('skills')) {
@@ -109,7 +114,7 @@ class ProjectController extends Controller
                 ProjectSkill::create([
                     'project_id' => $project->id,
                     'skill_id' => $skillData['id'],
-                    'weight' => $skillData['weight']
+                    'weight' => $skillData['weight'],
                 ]);
             }
         }
@@ -119,7 +124,7 @@ class ProjectController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Project updated successfully',
-            'data' => $project
+            'data' => $project,
         ]);
     }
 
@@ -127,10 +132,10 @@ class ProjectController extends Controller
     {
         $project = Project::find($id);
 
-        if (!$project) {
+        if (! $project) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project not found'
+                'message' => 'Project not found',
             ], 404);
         }
 
@@ -138,7 +143,7 @@ class ProjectController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Project deleted successfully'
+            'message' => 'Project deleted successfully',
         ]);
     }
 }

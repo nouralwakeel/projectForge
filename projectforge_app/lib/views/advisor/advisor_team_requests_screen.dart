@@ -106,7 +106,8 @@ class AdvisorTeamRequestsScreen extends StatelessWidget {
                       return _TeamRequestCard(
                         team: team,
                         onApprove: () => controller.approveTeam(team['id']),
-                        onReject: () => controller.rejectTeam(team['id']),
+                        onReject: () =>
+                            _promptRejectReason(context, controller, team['id']),
                         isPending: controller.requestsFilter.value == 'pending',
                       );
                     },
@@ -165,6 +166,58 @@ class AdvisorTeamRequestsScreen extends StatelessWidget {
         return '';
     }
   }
+}
+
+void _promptRejectReason(
+  BuildContext context,
+  AdvisorDashboardController controller,
+  dynamic teamId,
+) {
+  final reasonController = TextEditingController();
+  Get.dialog(
+    Directionality(
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'سبب رفض الطلب',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+        ),
+        content: TextField(
+          controller: reasonController,
+          maxLines: 3,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: 'اكتب سبب رفض طلب الإشراف لهذا الفريق...',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final reason = reasonController.text.trim();
+              if (reason.isEmpty) {
+                Get.snackbar('تنبيه', 'يجب إدخال سبب الرفض');
+                return;
+              }
+              Get.back();
+              controller.rejectTeam(teamId, reason: reason);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.dangerColor,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('تأكيد الرفض'),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _FilterBarDelegate extends SliverPersistentHeaderDelegate {
@@ -430,6 +483,48 @@ class _TeamRequestCard extends StatelessWidget {
                         ),
                       );
                     }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          if (supervisorStatus == 'rejected' &&
+              (team['rejection_reason']?.toString().trim().isNotEmpty ?? false))
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.dangerColor.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                    color: AppTheme.dangerColor.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline,
+                      size: 16, color: AppTheme.dangerColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'سبب الرفض',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.dangerColor),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          team['rejection_reason'].toString(),
+                          style: const TextStyle(
+                              fontSize: 12.5,
+                              height: 1.5,
+                              color: AppTheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

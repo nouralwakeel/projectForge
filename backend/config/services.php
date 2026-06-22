@@ -35,4 +35,38 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | AI Assistant (Google Gemini)
+    |--------------------------------------------------------------------------
+    |
+    | Credentials and defaults for the in-app AI assistant. The assistant calls
+    | the Google Generative Language API (generateContent) with function-calling
+    | so the model can query the database through the shared ToolRegistry.
+    |
+    */
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-flash-latest'),
+        'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 60),
+        'max_tool_turns' => (int) env('GEMINI_MAX_TOOL_TURNS', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | MCP Server
+    |--------------------------------------------------------------------------
+    |
+    | The MCP endpoint exposes the same ToolRegistry over JSON-RPC 2.0 so any
+    | external MCP client (e.g. Claude Desktop) can use the same tools. It is
+    | guarded by a static bearer token instead of Sanctum.
+    |
+    */
+    'mcp' => [
+        'token' => env('MCP_SERVER_TOKEN'),
+        'name' => env('MCP_SERVER_NAME', 'ProjectForge MCP'),
+        'version' => env('MCP_SERVER_VERSION', '1.0.0'),
+    ],
+
 ];

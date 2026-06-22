@@ -20,6 +20,7 @@ class TeamResource extends JsonResource
             'project_id' => $this->project_id,
             'is_approved' => $this->is_approved,
             'supervisor_status' => $this->supervisor_status,
+            'rejection_reason' => $this->rejection_reason,
             'project' => new ProjectResource($this->whenLoaded('project')),
             'members' => TeamMemberResource::collection($this->whenLoaded('members')),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),

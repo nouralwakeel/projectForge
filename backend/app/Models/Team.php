@@ -11,6 +11,7 @@ class Team extends Model
         'project_id',
         'is_approved',
         'supervisor_status',
+        'rejection_reason',
     ];
 
     protected $casts = [

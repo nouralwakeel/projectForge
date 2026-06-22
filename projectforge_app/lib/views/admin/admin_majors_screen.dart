@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../config/app_theme.dart';
@@ -65,9 +64,10 @@ class _AdminMajorsScreenState extends State<AdminMajorsScreen> {
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
             ElevatedButton(
               onPressed: () async {
+                final nav = Navigator.of(ctx);
                 try {
                   await _api.post(ApiConfig.majors, data: {'name': nameCtrl.text, 'code': codeCtrl.text});
-                  Navigator.pop(ctx);
+                  nav.pop();
                   _loadMajors();
                   Get.snackbar('نجاح', 'تم إضافة التخصص بنجاح', snackPosition: SnackPosition.BOTTOM);
                 } catch (e) {

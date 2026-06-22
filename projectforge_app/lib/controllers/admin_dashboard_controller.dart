@@ -13,10 +13,41 @@ class AdminDashboardController extends GetxController {
   RxList<dynamic> recentUsers = [].obs;
   RxList<dynamic> recentProjects = [].obs;
 
+  // Full project list (with type, teams, academic year/semester) for the
+  // projects management screen — richer than the dashboard's recent_projects.
+  RxList<dynamic> adminProjects = [].obs;
+  RxBool isLoadingProjects = false.obs;
+  RxString projectsStatusFilter = 'all'.obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchDashboardData();
+  }
+
+  Future<void> fetchAdminProjects() async {
+    isLoadingProjects.value = true;
+    try {
+      final params = <String, dynamic>{};
+      if (projectsStatusFilter.value != 'all') {
+        params['status'] = projectsStatusFilter.value;
+      }
+      final response = await _apiService.get(ApiConfig.adminProjects,
+          queryParameters: params);
+      if (response.data['success'] == true) {
+        final data = response.data['data'];
+        adminProjects.value = data is List ? data : (data['data'] ?? []);
+      }
+    } catch (e) {
+      Get.snackbar('خطأ', 'فشل في تحميل المشاريع');
+    } finally {
+      isLoadingProjects.value = false;
+    }
+  }
+
+  void setProjectsStatusFilter(String status) {
+    projectsStatusFilter.value = status;
+    fetchAdminProjects();
   }
 
   Future<void> fetchDashboardData() async {
@@ -52,6 +83,7 @@ class AdminDashboardController extends GetxController {
     try {
       await _apiService.delete('${ApiConfig.adminProjects}/$projectId');
       recentProjects.removeWhere((p) => p['id'] == projectId);
+      adminProjects.removeWhere((p) => p['id'] == projectId);
       fetchDashboardData();
       Get.snackbar('نجاح', 'تم حذف المشروع بنجاح');
     } catch (e) {
@@ -63,6 +95,7 @@ class AdminDashboardController extends GetxController {
     try {
       await _apiService.put('${ApiConfig.adminProjects}/$projectId/status', data: {'status': status});
       fetchDashboardData();
+      fetchAdminProjects();
       Get.snackbar('نجاح', 'تم تحديث حالة المشروع');
     } catch (e) {
       Get.snackbar('خطأ', 'فشل في تحديث حالة المشروع');

@@ -5,6 +5,7 @@ import '../../config/app_theme.dart';
 import '../../controllers/advisor_dashboard_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../app/routes/app_routes.dart';
+import '../../widgets/notification_bell.dart';
 
 class AdvisorDashboardScreen extends StatelessWidget {
   const AdvisorDashboardScreen({super.key});
@@ -60,6 +61,7 @@ class AdvisorDashboardScreen extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        const NotificationBell(),
                         IconButton(
                           onPressed: () => Get.toNamed(AppRoutes.settings),
                           icon: Icon(Icons.settings_outlined, color: AppTheme.primaryColor, size: 20),

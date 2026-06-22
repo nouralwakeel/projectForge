@@ -18,9 +18,9 @@ class SkillResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'category' => $this->category,
-            'proficiency_level' => $this->whenPivotLoaded('student_skills', fn() => $this->pivot?->proficiency_level),
-            'interest_level' => $this->whenPivotLoaded('student_skills', fn() => $this->pivot?->interest_level),
-            'weight' => $this->whenPivotLoaded('project_skills', fn() => $this->pivot?->weight),
+            'proficiency_level' => $this->whenPivotLoaded('student_skills', fn () => $this->pivot?->proficiency_level),
+            'interest_level' => $this->whenPivotLoaded('student_skills', fn () => $this->pivot?->interest_level),
+            'weight' => $this->whenPivotLoaded('project_skills', fn () => $this->pivot?->weight),
         ];
     }
 }

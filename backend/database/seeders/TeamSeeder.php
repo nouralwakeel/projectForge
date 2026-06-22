@@ -17,6 +17,7 @@ class TeamSeeder extends Seeder
 
         if ($projects->isEmpty() || $students->count() < 4) {
             $this->command->warn('TeamSeeder: Not enough projects or students. Skipping.');
+
             return;
         }
 
@@ -29,7 +30,7 @@ class TeamSeeder extends Seeder
 
         foreach ($projects->take(10) as $index => $project) {
             $availableStudents = $students->filter(
-                fn($s) => !$usedStudents->contains($s->id)
+                fn ($s) => ! $usedStudents->contains($s->id)
             );
 
             $teamSize = rand(3, 5);
@@ -41,10 +42,17 @@ class TeamSeeder extends Seeder
             $teamMembers = $availableStudents->random($teamSize);
             $usedStudents = $usedStudents->merge($teamMembers->pluck('id'));
 
+            // Cycle supervision states so advisor/admin screens show all cases.
+            $state = ['approved', 'pending', 'rejected'][$index % 3];
+
             $team = Team::create([
-                'name' => 'Team ' . ($teamNames[$index] ?? ($index + 1)),
+                'name' => 'Team '.($teamNames[$index] ?? ($index + 1)),
                 'project_id' => $project->id,
-                'is_approved' => (bool) rand(0, 1),
+                'is_approved' => $state === 'approved',
+                'supervisor_status' => $state,
+                'rejection_reason' => $state === 'rejected'
+                    ? 'تداخل موضوع المشروع مع مشروع آخر معتمد، يُرجى تعديل النطاق.'
+                    : null,
             ]);
 
             foreach ($teamMembers as $memberIndex => $student) {

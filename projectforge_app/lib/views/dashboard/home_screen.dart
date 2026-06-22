@@ -2,11 +2,15 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../config/app_constants.dart';
 import '../../config/app_theme.dart';
 import '../../app/routes/app_routes.dart';
 import '../../controllers/auth_controller.dart';
-import '../../controllers/team_controller.dart';
+import '../../controllers/project_controller.dart';
+import '../../controllers/recommendation_controller.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/notification_bell.dart';
+import '../../widgets/project_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,8 +21,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -31,37 +33,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBody() {
     switch (_currentIndex) {
-      case 0:
-        return const _OverviewPage();
       case 1:
-        return const _TeamsDiscoveryPage();
+        return const _MatchingPage();
       case 2:
-        return _buildPlaceholderPage(Icons.biotech, 'المختبر');
+        return const _ProjectsBrowsePage();
       case 3:
         return const _ProfileTab();
       default:
-        return const _OverviewPage();
+        return _OverviewPage(onExplore: () => setState(() => _currentIndex = 1));
     }
-  }
-
-  Widget _buildPlaceholderPage(IconData icon, String label) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 64, color: AppTheme.primaryColor.withValues(alpha: 0.3)),
-          const SizedBox(height: 16),
-          Text(label, style: const TextStyle(fontSize: 18, color: AppTheme.onSurfaceVariant)),
-        ],
-      ),
-    );
   }
 
   Widget _buildBottomNav() {
     final items = [
       _NavItem('الرئيسية', Icons.dashboard),
-      _NavItem('المطابقة', Icons.groups),
-      _NavItem('المختبر', Icons.biotech),
+      _NavItem('المطابقة', Icons.auto_awesome),
+      _NavItem('المشاريع', Icons.assignment),
       _NavItem('الملف', Icons.person),
     ];
     return Container(
@@ -127,8 +114,204 @@ class _NavItem {
   _NavItem(this.label, this.icon);
 }
 
+/// Tab 1 — real skill-based project recommendations (weighted match score).
+class _MatchingPage extends StatelessWidget {
+  const _MatchingPage();
+
+  @override
+  Widget build(BuildContext context) {
+    final rec = Get.put(RecommendationController());
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: AppTheme.lightColor,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          automaticallyImplyLeading: false,
+          title: const Text('المطابقة الذكية',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.onSurface)),
+          actions: [
+            IconButton(
+              onPressed: () => rec.fetchRecommendations(),
+              icon: Icon(Icons.refresh, color: AppTheme.primaryColor),
+            ),
+          ],
+        ),
+        body: Obx(() {
+          if (rec.isLoading.value && rec.recommendations.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (rec.error.value == 'no_skills') {
+            return _info(
+              icon: Icons.assignment_late,
+              text: 'أكمل استبيان المهارات لعرض المشاريع المطابقة لك',
+              actionLabel: 'إكمال الاستبيان',
+              onAction: () => Get.toNamed(AppRoutes.survey),
+            );
+          }
+          if (rec.recommendations.isEmpty) {
+            return _info(
+              icon: Icons.search_off,
+              text: 'لا توجد توصيات متاحة حالياً',
+              actionLabel: 'إعادة المحاولة',
+              onAction: () => rec.fetchRecommendations(),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: () => rec.fetchRecommendations(),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                const Text(
+                  'مشاريع مقترحة بناءً على مهاراتك واهتماماتك',
+                  style: TextStyle(fontSize: 15, color: AppTheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 12),
+                ...rec.recommendations.map((r) => ProjectCard(
+                      project: r.project,
+                      matchPercentage: r.matchPercentage,
+                      onTap: () => Get.toNamed(
+                          AppRoutes.projectDetail.replaceAll(':id', '${r.project.id}')),
+                    )),
+                const SizedBox(height: 80),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _info({
+    required IconData icon,
+    required String text,
+    required String actionLabel,
+    required VoidCallback onAction,
+  }) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 64, color: AppTheme.primaryColor.withValues(alpha: 0.3)),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(text,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: AppTheme.onSurfaceVariant)),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(onPressed: onAction, child: Text(actionLabel)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tab 2 — browse every project (replaces the old empty "lab" placeholder).
+class _ProjectsBrowsePage extends StatelessWidget {
+  const _ProjectsBrowsePage();
+
+  @override
+  Widget build(BuildContext context) {
+    final pc = Get.put(ProjectController());
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: AppTheme.lightColor,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          automaticallyImplyLeading: false,
+          title: const Text('كل المشاريع',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.onSurface)),
+          actions: [
+            IconButton(
+              onPressed: () => pc.fetchProjects(refresh: true),
+              icon: Icon(Icons.refresh, color: AppTheme.primaryColor),
+            ),
+          ],
+        ),
+        body: Obx(() {
+          if (pc.isLoading.value && pc.projects.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (pc.projects.isEmpty) {
+            return const Center(
+              child: Text('لا توجد مشاريع', style: TextStyle(color: AppTheme.onSurfaceVariant)),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: () => pc.fetchProjects(refresh: true),
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: pc.projects.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (_, i) => _projectTile(pc.projects[i]),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _projectTile(dynamic p) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoutes.projectDetail.replaceAll(':id', '${p.id}')),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.4)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              p.title,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              p.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13, color: AppTheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 10),
+            Wrap(spacing: 8, runSpacing: 6, children: [
+              _chip(AppConstants.projectTypeLabels[p.type] ?? '${p.type}'),
+              _chip('صعوبة ${p.difficultyLevel}'),
+              _chip(AppConstants.statusLabels[p.status] ?? '${p.status}'),
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _chip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(label,
+          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w500, color: AppTheme.primaryColor)),
+    );
+  }
+}
+
 class _OverviewPage extends StatelessWidget {
-  const _OverviewPage();
+  final VoidCallback onExplore;
+  const _OverviewPage({required this.onExplore});
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +324,7 @@ class _OverviewPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                const _HeroSection(),
+                _HeroSection(onExplore: onExplore),
                 const SizedBox(height: 48),
                 const _HowWeHelpSection(),
                 const SizedBox(height: 48),
@@ -204,15 +387,7 @@ class _OverviewPage extends StatelessWidget {
                     shape: const CircleBorder(),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.notifications, color: AppTheme.primaryColor),
-                  padding: const EdgeInsets.all(4),
-                  constraints: const BoxConstraints(),
-                  style: IconButton.styleFrom(
-                    shape: const CircleBorder(),
-                  ),
-                ),
+                const NotificationBell(),
                 const SizedBox(width: 4),
                 Container(
                   width: 32,
@@ -237,688 +412,9 @@ class _OverviewPage extends StatelessWidget {
   }
 }
 
-class _TeamsDiscoveryPage extends StatefulWidget {
-  const _TeamsDiscoveryPage();
-
-  @override
-  State<_TeamsDiscoveryPage> createState() => _TeamsDiscoveryPageState();
-}
-
-class _TeamsDiscoveryPageState extends State<_TeamsDiscoveryPage> {
-  int _selectedFilter = 0;
-  final _filters = ['الكل', 'الذكاء الاصطناعي', 'تطوير الويب', 'تطبيقات الجوال'];
-
-  final _mockSkillDemand = [
-    {'name': 'Flutter', 'percentage': 0.8, 'color': AppTheme.primaryColor},
-    {'name': 'UI/UX Design', 'percentage': 0.5, 'color': AppTheme.tertiaryColor},
-    {'name': 'Firebase', 'percentage': 0.3, 'color': AppTheme.secondaryColor},
-  ];
-
-  final _mockTopTeam = {
-    'name': 'فريق أنظمة ذكية',
-    'match': 95,
-    'description': 'نطور نظام توصيات ذكي يعتمد على الذكاء الاصطناعي لتوصية المشاريع المناسبة للطلاب.',
-    'skills': ['Flutter', 'Python', 'ML', 'Firebase'],
-    'members': 3,
-  };
-
-  final _teamColors = [
-    AppTheme.primaryColor,
-    AppTheme.tertiaryColor,
-    AppTheme.secondaryColor,
-    AppTheme.successColor,
-    AppTheme.tertiaryContainer,
-    Colors.teal,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = Get.put(TeamController());
-
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            pinned: true,
-            elevation: 0,
-            scrolledUnderElevation: 0.5,
-            backgroundColor: Colors.white.withValues(alpha: 0.85),
-            flexibleSpace: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-            titleSpacing: 0,
-            leadingWidth: 0,
-            title: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'ProjectForge',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryColor,
-                        letterSpacing: -0.02,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const Text(
-                    'المطابقة',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () => Get.toNamed(AppRoutes.settings),
-                        icon: Icon(Icons.settings_outlined, color: AppTheme.primaryColor),
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(),
-                        style: IconButton.styleFrom(shape: const CircleBorder()),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.notifications, color: AppTheme.primaryColor),
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(),
-                        style: IconButton.styleFrom(shape: const CircleBorder()),
-                      ),
-                      const SizedBox(width: 4),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppTheme.outlineVariant),
-                        ),
-                        child: ClipOval(
-                          child: Container(
-                            color: AppTheme.surfaceContainerHigh,
-                            child: const Icon(Icons.person, size: 18, color: AppTheme.onSurfaceVariant),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildHeader(),
-                const SizedBox(height: 16),
-                _buildFilterChips(),
-                const SizedBox(height: 32),
-                _buildBentoGrid(controller),
-                const SizedBox(height: 40),
-                _buildSuggestedTeamsSection(controller),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: const TextSpan(
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, height: 1.3, color: AppTheme.onSurface),
-            children: [
-              TextSpan(text: 'اكتشف فريقك '),
-              TextSpan(text: 'المثالي', style: TextStyle(color: AppTheme.primaryColor)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          'استكشف الفرق التي تبحث عن مهاراتك وانضم إلى المشروع الأنسب لك.',
-          style: TextStyle(fontSize: 15, height: 1.6, color: AppTheme.onSurfaceVariant),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFilterChips() {
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: _filters.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final isActive = _selectedFilter == index;
-          return GestureDetector(
-            onTap: () => setState(() => _selectedFilter = index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: isActive ? AppTheme.primaryColor : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isActive ? AppTheme.primaryColor : AppTheme.outlineVariant,
-                ),
-              ),
-              child: Text(
-                _filters[index],
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: isActive ? Colors.white : AppTheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildBentoGrid(TeamController controller) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 600;
-        if (isWide) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 3, child: _buildFeaturedTeamCard()),
-              const SizedBox(width: 16),
-              Expanded(flex: 2, child: _buildSkillDemandCard()),
-            ],
-          );
-        }
-        return Column(
-          children: [
-            _buildFeaturedTeamCard(),
-            const SizedBox(height: 16),
-            _buildSkillDemandCard(),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildFeaturedTeamCard() {
-    final team = _mockTopTeam;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            AppTheme.primaryColor,
-            AppTheme.primaryColor.withValues(alpha: 0.8),
-            AppTheme.tertiaryColor.withValues(alpha: 0.6),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.3),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: CustomPaint(painter: _RadialGradientPainterHero()),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        team['name'] as String,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    _buildMatchCircle(team['match'] as int),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  team['description'] as String,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.6,
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: (team['skills'] as List<String>).map((skill) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-                      ),
-                      child: Text(
-                        skill,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppTheme.primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'طلب انضمام',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMatchCircle(int percentage) {
-    return Container(
-      width: 64,
-      height: 64,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.2),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-            width: 56,
-            height: 56,
-            child: CircularProgressIndicator(
-              value: percentage / 100,
-              strokeWidth: 3,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ),
-          Text(
-            '$percentage%',
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSkillDemandCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.4)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(Icons.analytics_outlined, size: 20, color: AppTheme.primaryColor),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'مهاراتك المطلوبة',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          ..._mockSkillDemand.map<Widget>((skill) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                      Text(
-                        skill['name'] as String,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.onSurface),
-                      ),
-                      Text(
-                        '${((skill['percentage'] as double) * 100).toInt()}%',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: skill['color'] as Color,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: LinearProgressIndicator(
-                      value: skill['percentage'] as double,
-                      minHeight: 8,
-                      backgroundColor: (skill['color'] as Color).withValues(alpha: 0.1),
-                      valueColor: AlwaysStoppedAnimation<Color>(skill['color'] as Color),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSuggestedTeamsSection(TeamController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'فرق أخرى مقترحة',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
-        ),
-        const SizedBox(height: 20),
-        Obx(() {
-          if (controller.isLoading.value && controller.teams.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-          if (controller.teams.isEmpty) {
-            return _buildEmptyTeamsState(controller);
-          }
-          return _buildTeamsGrid(controller);
-        }),
-      ],
-    );
-  }
-
-  Widget _buildEmptyTeamsState(TeamController controller) {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.groups, size: 48, color: AppTheme.primaryColor.withValues(alpha: 0.3)),
-          const SizedBox(height: 16),
-          const Text(
-            'لا توجد فرق متاحة حالياً',
-            style: TextStyle(fontSize: 16, color: AppTheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 16),
-          OutlinedButton(
-            onPressed: () => controller.fetchTeams(),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.primaryColor,
-              side: const BorderSide(color: AppTheme.primaryColor),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('إعادة المحاولة'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTeamsGrid(TeamController controller) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int crossAxisCount = 1;
-        if (constraints.maxWidth > 900) {
-          crossAxisCount = 3;
-        } else if (constraints.maxWidth > 550) {
-          crossAxisCount = 2;
-        }
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: _getCardAspectRatio(crossAxisCount),
-          ),
-          itemCount: controller.teams.length,
-          itemBuilder: (context, index) {
-            final team = controller.teams[index];
-            return _buildTeamCard(team, index);
-          },
-        );
-      },
-    );
-  }
-
-  double _getCardAspectRatio(int crossAxisCount) {
-    if (crossAxisCount >= 3) return 0.65;
-    if (crossAxisCount == 2) return 0.6;
-    return 0.55;
-  }
-
-  Widget _buildTeamCard(dynamic team, int index) {
-    final colorAccent = _teamColors[index % _teamColors.length];
-    final matchPercent = 60 + (index * 7) % 35;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.4)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(height: 4, color: colorAccent),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          team.name,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.onSurface),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.matchColor(matchPercent.toDouble()).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '$matchPercent%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.matchColor(matchPercent.toDouble()),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: Text(
-                      team.project?.description ?? 'فريق مشروع تخرج',
-                      style: const TextStyle(fontSize: 13, height: 1.5, color: AppTheme.onSurfaceVariant),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: (team.project?.skills ?? [])
-                        .take(3)
-                        .map<Widget>((s) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: colorAccent.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                s.name,
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: colorAccent),
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildMemberAvatars(team.members?.length ?? 0, colorAccent),
-                      GestureDetector(
-                        onTap: () => Get.toNamed(
-                          AppRoutes.teamDetail.replaceAll(':id', '${team.id}'),
-                        ),
-                        child: Text(
-                          'التفاصيل',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMemberAvatars(int count, Color color) {
-    final display = count.clamp(1, 5);
-    return Row(
-      children: List.generate(display, (i) {
-        return Transform.translate(
-          offset: Offset(-i * 12.0, 0),
-          child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color.withValues(alpha: 0.1 + (i * 0.05)),
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            child: Icon(Icons.person, size: 14, color: color),
-          ),
-        );
-      }),
-    );
-  }
-}
-
-class _RadialGradientPainterHero extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final paint1 = Paint()
-      ..shader = RadialGradient(
-        center: const Alignment(-0.8, -0.8),
-        radius: 0.6,
-        colors: [Colors.white.withValues(alpha: 0.1), Colors.transparent],
-      ).createShader(rect);
-
-    final paint2 = Paint()
-      ..shader = RadialGradient(
-        center: const Alignment(0.8, 0.8),
-        radius: 0.5,
-        colors: [Colors.white.withValues(alpha: 0.08), Colors.transparent],
-      ).createShader(rect);
-
-    canvas.drawRect(rect, paint1);
-    canvas.drawRect(rect, paint2);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
 class _HeroSection extends StatelessWidget {
-  const _HeroSection();
+  final VoidCallback onExplore;
+  const _HeroSection({required this.onExplore});
 
   @override
   Widget build(BuildContext context) {
@@ -1007,41 +503,24 @@ class _HeroSection extends StatelessWidget {
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 300;
-              return ElevatedButton(
-                onPressed: () {
-                  try {
-                    final auth = Get.find<AuthService>();
-                    if (auth.isLoggedIn.value) {
-                      Get.toNamed(AppRoutes.dashboard);
-                    } else {
-                      Get.toNamed(AppRoutes.login);
-                    }
-                  } catch (_) {
-                    Get.toNamed(AppRoutes.login);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: AppTheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: isWide ? MainAxisSize.max : MainAxisSize.max,
-                  children: const [
-                    Text('ابدأ الآن', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_back, size: 20),
-                  ],
-                ),
-              );
-            },
+          child: ElevatedButton(
+            onPressed: onExplore,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: AppTheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+              shadowColor: Colors.transparent,
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('استكشف مشاريعك المقترحة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                SizedBox(width: 8),
+                Icon(Icons.arrow_back, size: 20),
+              ],
+            ),
           ),
         ),
       ],
@@ -1612,12 +1091,12 @@ class _BenefitItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(description, style: const TextStyle(fontSize: 14, height: 1.5, color: AppTheme.onSurfaceVariant)),
               ],
-             ),
-           ),
-         ],
-       ),
-     );
-   }
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ProfileTab extends StatelessWidget {
@@ -1700,7 +1179,7 @@ class _ProfileTab extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          user.fullName[0],
+                          user.fullName.isNotEmpty ? user.fullName[0] : '؟',
                           style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                         ),
                       ),

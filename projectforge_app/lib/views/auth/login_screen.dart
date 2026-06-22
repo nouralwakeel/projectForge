@@ -180,12 +180,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 4),
                         Align(
                           alignment: AlignmentDirectional.centerEnd,
-                          child: Text(
-                            'هل نسيت كلمة المرور؟',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppTheme.tertiaryColor,
+                          child: GestureDetector(
+                            onTap: () =>
+                                Get.toNamed(AppRoutes.forgotPassword),
+                            child: Text(
+                              'هل نسيت كلمة المرور؟',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.tertiaryColor,
+                              ),
                             ),
                           ),
                         ),

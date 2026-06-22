@@ -13,7 +13,7 @@ class BaseRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'بعض الحقول غير صحيحة',
-            'errors'  => $validator->errors()->toArray(),
+            'errors' => $validator->errors()->toArray(),
         ], 422));
     }
 }

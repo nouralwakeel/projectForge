@@ -20,7 +20,7 @@ class SkillController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $skills
+            'data' => $skills,
         ]);
     }
 
@@ -28,7 +28,7 @@ class SkillController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'category' => 'required|string|max:255'
+            'category' => 'required|string|max:255',
         ]);
 
         $skill = Skill::create($request->only(['name', 'category']));
@@ -36,7 +36,7 @@ class SkillController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Skill created successfully',
-            'data' => $skill
+            'data' => $skill,
         ], 201);
     }
 
@@ -44,16 +44,16 @@ class SkillController extends Controller
     {
         $skill = Skill::with(['students', 'projects'])->find($id);
 
-        if (!$skill) {
+        if (! $skill) {
             return response()->json([
                 'success' => false,
-                'message' => 'Skill not found'
+                'message' => 'Skill not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $skill
+            'data' => $skill,
         ]);
     }
 
@@ -61,16 +61,16 @@ class SkillController extends Controller
     {
         $skill = Skill::find($id);
 
-        if (!$skill) {
+        if (! $skill) {
             return response()->json([
                 'success' => false,
-                'message' => 'Skill not found'
+                'message' => 'Skill not found',
             ], 404);
         }
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'category' => 'sometimes|required|string|max:255'
+            'category' => 'sometimes|required|string|max:255',
         ]);
 
         $skill->update($request->only(['name', 'category']));
@@ -78,7 +78,7 @@ class SkillController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Skill updated successfully',
-            'data' => $skill
+            'data' => $skill,
         ]);
     }
 
@@ -86,10 +86,10 @@ class SkillController extends Controller
     {
         $skill = Skill::find($id);
 
-        if (!$skill) {
+        if (! $skill) {
             return response()->json([
                 'success' => false,
-                'message' => 'Skill not found'
+                'message' => 'Skill not found',
             ], 404);
         }
 
@@ -97,7 +97,7 @@ class SkillController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Skill deleted successfully'
+            'message' => 'Skill deleted successfully',
         ]);
     }
 }

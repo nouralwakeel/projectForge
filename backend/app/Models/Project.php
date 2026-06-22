@@ -11,6 +11,8 @@ class Project extends Model
         'description',
         'type_id',
         'difficulty_level',
+        'academic_year',
+        'semester',
         'supervisor_id',
         'status',
     ];
@@ -49,6 +51,11 @@ class Project extends Model
     public function risks()
     {
         return $this->hasMany(Risk::class);
+    }
+
+    public function todos()
+    {
+        return $this->hasMany(ProjectTodo::class)->orderBy('order_sequence');
     }
 
     public function successEstimations()

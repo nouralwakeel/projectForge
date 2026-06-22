@@ -17,7 +17,7 @@ class AuthController extends Controller
     {
         $role = $request->role ?? 'student';
         $name = $role === 'student'
-            ? $request->first_name . ' ' . $request->last_name
+            ? $request->first_name.' '.$request->last_name
             : $request->name;
 
         $user = User::create([
@@ -47,16 +47,16 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user->load('student'),
                 'token' => $token,
-            ]
+            ],
         ], 201);
     }
 
     public function login(LoginRequest $request)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'success' => false,
-                'message' => 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
+                'message' => 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
             ], 401);
         }
 
@@ -69,7 +69,7 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user->load('student'),
                 'token' => $token,
-            ]
+            ],
         ]);
     }
 
@@ -79,7 +79,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ]);
     }
 
@@ -87,7 +87,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $request->user()->load('student.major', 'student.skills')
+            'data' => $request->user()->load('student.major', 'student.skills'),
         ]);
     }
 }

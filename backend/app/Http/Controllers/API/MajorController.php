@@ -11,9 +11,10 @@ class MajorController extends Controller
     public function index()
     {
         $majors = Major::all();
+
         return response()->json([
             'success' => true,
-            'data' => $majors
+            'data' => $majors,
         ]);
     }
 
@@ -21,7 +22,7 @@ class MajorController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|unique:majors,code'
+            'code' => 'required|string|unique:majors,code',
         ]);
 
         $major = Major::create($request->only(['name', 'code']));
@@ -29,7 +30,7 @@ class MajorController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Major created successfully',
-            'data' => $major
+            'data' => $major,
         ], 201);
     }
 
@@ -37,16 +38,16 @@ class MajorController extends Controller
     {
         $major = Major::with('students')->find($id);
 
-        if (!$major) {
+        if (! $major) {
             return response()->json([
                 'success' => false,
-                'message' => 'Major not found'
+                'message' => 'Major not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $major
+            'data' => $major,
         ]);
     }
 
@@ -54,16 +55,16 @@ class MajorController extends Controller
     {
         $major = Major::find($id);
 
-        if (!$major) {
+        if (! $major) {
             return response()->json([
                 'success' => false,
-                'message' => 'Major not found'
+                'message' => 'Major not found',
             ], 404);
         }
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'code' => 'sometimes|required|string|unique:majors,code,' . $id
+            'code' => 'sometimes|required|string|unique:majors,code,'.$id,
         ]);
 
         $major->update($request->only(['name', 'code']));
@@ -71,7 +72,7 @@ class MajorController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Major updated successfully',
-            'data' => $major
+            'data' => $major,
         ]);
     }
 
@@ -79,10 +80,10 @@ class MajorController extends Controller
     {
         $major = Major::find($id);
 
-        if (!$major) {
+        if (! $major) {
             return response()->json([
                 'success' => false,
-                'message' => 'Major not found'
+                'message' => 'Major not found',
             ], 404);
         }
 
@@ -90,7 +91,7 @@ class MajorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Major deleted successfully'
+            'message' => 'Major deleted successfully',
         ]);
     }
 }

@@ -5,6 +5,7 @@ import '../../config/app_theme.dart';
 import '../../controllers/admin_dashboard_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../app/routes/app_routes.dart';
+import '../../widgets/notification_bell.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -60,6 +61,7 @@ class AdminDashboardScreen extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        const NotificationBell(),
                         IconButton(
                           onPressed: () => Get.toNamed(AppRoutes.settings),
                           icon: Icon(Icons.settings_outlined, color: AppTheme.primaryColor, size: 20),
@@ -121,6 +123,8 @@ class AdminDashboardScreen extends StatelessWidget {
                     _WelcomeHeader(),
                     const SizedBox(height: 24),
                     _StatsGrid(stats: adminController.stats),
+                    const SizedBox(height: 20),
+                    _AssistantCard(),
                     const SizedBox(height: 32),
                     _QuickActionsSection(adminController: adminController),
                     const SizedBox(height: 32),
@@ -345,6 +349,68 @@ class _StatCard extends StatelessWidget {
             style: const TextStyle(fontSize: 14, color: AppTheme.onSurfaceVariant),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AssistantCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoutes.assistantChat),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              AppTheme.tertiaryColor,
+              AppTheme.tertiaryColor.withValues(alpha: 0.78),
+              AppTheme.primaryColor.withValues(alpha: 0.7),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.tertiaryColor.withValues(alpha: 0.28),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.smart_toy_outlined, size: 26, color: Colors.white),
+            ),
+            const SizedBox(width: 14),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'المساعد الذكي',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                  SizedBox(height: 3),
+                  Text(
+                    'اسأل عن الطلاب والمشاريع والفرق بلغتك الطبيعية',
+                    style: TextStyle(fontSize: 12, height: 1.3, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
+          ],
+        ),
       ),
     );
   }

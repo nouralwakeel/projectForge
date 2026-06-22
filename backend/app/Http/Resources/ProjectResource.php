@@ -16,6 +16,8 @@ class ProjectResource extends JsonResource
             'type' => new ProjectTypeResource($this->whenLoaded('type')),
             'type_id' => $this->type_id,
             'difficulty_level' => $this->difficulty_level,
+            'academic_year' => $this->academic_year,
+            'semester' => $this->semester,
             'status' => $this->status,
             'supervisor' => new UserResource($this->whenLoaded('supervisor')),
             'skills' => SkillResource::collection($this->whenLoaded('skills')),

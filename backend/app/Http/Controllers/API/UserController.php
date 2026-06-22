@@ -4,10 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSkillsRequest;
-use App\Models\Student;
 use App\Models\StudentSkill;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -17,7 +15,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $users
+            'data' => $users,
         ]);
     }
 
@@ -25,16 +23,16 @@ class UserController extends Controller
     {
         $user = User::with(['student.major', 'student.skills', 'student.teams.project'])->find($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found'
+                'message' => 'User not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $user
+            'data' => $user,
         ]);
     }
 
@@ -43,10 +41,10 @@ class UserController extends Controller
         $user = auth()->user();
         $student = $user->student;
 
-        if (!$student) {
+        if (! $student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student profile not found'
+                'message' => 'Student profile not found',
             ], 404);
         }
 
@@ -66,7 +64,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Skills updated successfully',
-            'data' => $student->skills
+            'data' => $student->skills,
         ]);
     }
 
@@ -75,10 +73,10 @@ class UserController extends Controller
         $user = auth()->user();
         $student = $user->student;
 
-        if (!$student) {
+        if (! $student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student profile not found'
+                'message' => 'Student profile not found',
             ], 404);
         }
 
@@ -86,7 +84,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $student->skills
+            'data' => $student->skills,
         ]);
     }
 }

@@ -59,6 +59,11 @@ class AdminController extends Controller
     {
         $query = User::with(['student.major', 'student.skills']);
 
+        // Archived (soft-deleted) accounts are returned only when explicitly requested.
+        if ($request->boolean('archived')) {
+            $query->onlyTrashed();
+        }
+
         if ($request->has('role')) {
             $query->where('role', $request->role);
         }
@@ -81,10 +86,22 @@ class AdminController extends Controller
 
     public function projects(Request $request)
     {
-        $query = Project::with(['supervisor', 'type', 'skills']);
+        $query = Project::with(['supervisor', 'type', 'skills', 'teams.members.user']);
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->has('type_id')) {
+            $query->where('type_id', $request->type_id);
+        }
+
+        if ($request->filled('academic_year')) {
+            $query->where('academic_year', $request->academic_year);
+        }
+
+        if ($request->filled('semester')) {
+            $query->where('semester', $request->semester);
         }
 
         $projects = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -99,25 +116,54 @@ class AdminController extends Controller
     {
         $user = User::find($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found',
+                'message' => 'لم يتم العثور على المستخدم',
             ], 404);
         }
 
         if ($user->role === 'admin') {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete admin users',
+                'message' => 'لا يمكن أرشفة حسابات المدراء',
             ], 403);
         }
 
+        // Archive instead of hard delete: revoke active tokens, then soft delete.
+        $user->tokens()->delete();
         $user->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'User deleted successfully',
+            'message' => 'تمت أرشفة الحساب بنجاح',
+        ]);
+    }
+
+    public function restoreUser($id)
+    {
+        $user = User::withTrashed()->find($id);
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم العثور على المستخدم',
+            ], 404);
+        }
+
+        if (! $user->trashed()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'الحساب غير مؤرشف',
+            ], 400);
+        }
+
+        $user->restore();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تمت استعادة الحساب بنجاح',
+            'data' => $user->load(['student.major', 'student.skills']),
         ]);
     }
 
@@ -125,7 +171,7 @@ class AdminController extends Controller
     {
         $project = Project::find($id);
 
-        if (!$project) {
+        if (! $project) {
             return response()->json([
                 'success' => false,
                 'message' => 'Project not found',

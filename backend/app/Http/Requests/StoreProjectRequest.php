@@ -27,6 +27,8 @@ class StoreProjectRequest extends FormRequest
             'description' => 'required|string',
             'type_id' => 'required|exists:project_types,id',
             'difficulty_level' => 'required|integer|min:1|max:5',
+            'academic_year' => 'nullable|string|max:20',
+            'semester' => 'nullable|in:first,second,summer',
             'skills' => 'required|array|min:1',
             'skills.*.id' => 'required|exists:skills,id',
             'skills.*.weight' => 'required|numeric|min:0|max:1',

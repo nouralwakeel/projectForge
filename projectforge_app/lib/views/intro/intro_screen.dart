@@ -12,9 +12,7 @@ class IntroScreen extends StatefulWidget {
 }
 
 class _IntroScreenState extends State<IntroScreen>
-    with TickerProviderStateMixin {
-  late List<AnimationController> _iconControllers;
-  late List<Animation<double>> _iconAnimations;
+    with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -44,19 +42,6 @@ class _IntroScreenState extends State<IntroScreen>
   @override
   void initState() {
     super.initState();
-    _iconControllers = List.generate(
-      _features.length,
-      (i) => AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 1800 + i * 200),
-      )..repeat(reverse: true),
-    );
-    _iconAnimations = _iconControllers
-        .map((c) => Tween<double>(begin: 0, end: 12).animate(
-              CurvedAnimation(parent: c, curve: Curves.easeInOut),
-            ))
-        .toList();
-
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -70,9 +55,6 @@ class _IntroScreenState extends State<IntroScreen>
 
   @override
   void dispose() {
-    for (final c in _iconControllers) {
-      c.dispose();
-    }
     _fadeController.dispose();
     super.dispose();
   }
@@ -124,7 +106,7 @@ class _IntroScreenState extends State<IntroScreen>
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'نظام إدارة مشاريع التخرج',
+                        'نظرة عامة — كيف نساعدك؟',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -149,56 +131,43 @@ class _IntroScreenState extends State<IntroScreen>
                         final feature = _features[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: AnimatedBuilder(
-                            animation: _iconAnimations[index],
-                            builder: (context, child) {
-                              return Transform.translate(
-                                offset: Offset(
-                                    0, -_iconAnimations[index].value),
-                                child: child,
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color:
-                                    feature.color.withValues(alpha: 0.06),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: feature.color
-                                      .withValues(alpha: 0.15),
-                                ),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: feature.color.withValues(alpha: 0.06),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: feature.color.withValues(alpha: 0.15),
                               ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 52,
-                                    height: 52,
-                                    decoration: BoxDecoration(
-                                      color: feature.color
-                                          .withValues(alpha: 0.15),
-                                      borderRadius:
-                                          BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      feature.icon,
-                                      size: 28,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 52,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        feature.color.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Icon(
+                                    feature.icon,
+                                    size: 28,
+                                    color: feature.color,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    feature.title,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
                                       color: feature.color,
                                     ),
                                   ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Text(
-                                      feature.title,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: feature.color,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -226,8 +195,8 @@ class _IntroScreenState extends State<IntroScreen>
                     ),
                     child: const Text(
                       'ابدأ الآن',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

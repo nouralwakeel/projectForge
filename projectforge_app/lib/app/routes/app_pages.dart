@@ -8,6 +8,8 @@ import '../../controllers/skill_controller.dart';
 import '../../controllers/admin_dashboard_controller.dart';
 import '../../controllers/advisor_dashboard_controller.dart';
 import '../../controllers/team_controller.dart';
+import '../../controllers/assistant_controller.dart';
+import '../../controllers/notification_controller.dart';
 import '../../views/admin/admin_dashboard_screen.dart';
 import '../../views/admin/admin_users_screen.dart';
 import '../../views/admin/admin_projects_screen.dart';
@@ -16,8 +18,11 @@ import '../../views/admin/admin_skills_screen.dart';
 import '../../views/advisor/advisor_dashboard_screen.dart';
 import '../../views/advisor/advisor_team_requests_screen.dart';
 import '../../views/auth/login_screen.dart';
+import '../../views/auth/forgot_password_screen.dart';
 import '../../views/intro/intro_screen.dart';
 import '../../views/auth/register_screen.dart';
+import '../../views/assistant/assistant_chat_screen.dart';
+import '../../views/notifications/notifications_screen.dart';
 import '../../views/dashboard/dashboard_screen.dart';
 import '../../views/dashboard/home_screen.dart';
 import '../../views/estimation/success_estimator_screen.dart';
@@ -48,6 +53,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.register,
       page: () => const RegisterScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordScreen(),
     ),
     GetPage(
       name: AppRoutes.survey,
@@ -127,6 +136,16 @@ class AppPages {
       name: AppRoutes.advisorTeamRequests,
       page: () => const AdvisorTeamRequestsScreen(),
       binding: BindingsBuilder.put(() => AdvisorDashboardController()),
+    ),
+    GetPage(
+      name: AppRoutes.assistantChat,
+      page: () => const AssistantChatScreen(),
+      binding: BindingsBuilder.put(() => AssistantController()),
+    ),
+    GetPage(
+      name: AppRoutes.notifications,
+      page: () => const NotificationsScreen(),
+      binding: BindingsBuilder.put(() => NotificationController()),
     ),
   ];
 }

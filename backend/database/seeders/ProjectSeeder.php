@@ -15,7 +15,7 @@ class ProjectSeeder extends Seeder
     {
         $advisor = User::where('role', 'advisor')->first();
 
-        if (!$advisor) {
+        if (! $advisor) {
             $advisor = User::create([
                 'email' => 'advisor@example.com',
                 'password' => bcrypt('password'),
@@ -35,7 +35,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Flutter', 'weight' => 0.4],
                     ['name' => 'Dart', 'weight' => 0.3],
                     ['name' => 'Firebase', 'weight' => 0.3],
-                ]
+                ],
             ],
             [
                 'title' => 'منصة تعليمية تفاعلية',
@@ -47,7 +47,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Node.js', 'weight' => 0.3],
                     ['name' => 'MongoDB', 'weight' => 0.2],
                     ['name' => 'UI/UX Design', 'weight' => 0.2],
-                ]
+                ],
             ],
             [
                 'title' => 'نظام توصية ذكي للمطاعم',
@@ -59,7 +59,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Machine Learning', 'weight' => 0.3],
                     ['name' => 'TensorFlow', 'weight' => 0.2],
                     ['name' => 'Django', 'weight' => 0.2],
-                ]
+                ],
             ],
             [
                 'title' => 'نظام إدارة المستشفى',
@@ -70,7 +70,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Laravel', 'weight' => 0.35],
                     ['name' => 'Vue.js', 'weight' => 0.35],
                     ['name' => 'MySQL', 'weight' => 0.3],
-                ]
+                ],
             ],
             [
                 'title' => 'تطبيق توصيل طعام',
@@ -82,7 +82,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Node.js', 'weight' => 0.3],
                     ['name' => 'MongoDB', 'weight' => 0.2],
                     ['name' => 'REST API Design', 'weight' => 0.15],
-                ]
+                ],
             ],
             [
                 'title' => 'نظام تحليل المشاعر',
@@ -94,7 +94,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Natural Language Processing', 'weight' => 0.3],
                     ['name' => 'Deep Learning', 'weight' => 0.2],
                     ['name' => 'PyTorch', 'weight' => 0.2],
-                ]
+                ],
             ],
             [
                 'title' => 'منصة تجارة إلكترونية',
@@ -106,7 +106,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'React.js', 'weight' => 0.3],
                     ['name' => 'MySQL', 'weight' => 0.2],
                     ['name' => 'UI/UX Design', 'weight' => 0.2],
-                ]
+                ],
             ],
             [
                 'title' => 'تطبيق تتبع اللياقة البدنية',
@@ -117,7 +117,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Flutter', 'weight' => 0.4],
                     ['name' => 'Firebase', 'weight' => 0.3],
                     ['name' => 'Dart', 'weight' => 0.3],
-                ]
+                ],
             ],
             [
                 'title' => 'نظام التعرف على الوجوه',
@@ -129,7 +129,7 @@ class ProjectSeeder extends Seeder
                     ['name' => 'Computer Vision', 'weight' => 0.3],
                     ['name' => 'Deep Learning', 'weight' => 0.25],
                     ['name' => 'OpenCV', 'weight' => 0.2],
-                ]
+                ],
             ],
             [
                 'title' => 'نظام إدارة المكتبة',
@@ -141,18 +141,23 @@ class ProjectSeeder extends Seeder
                     ['name' => 'MySQL', 'weight' => 0.3],
                     ['name' => 'HTML/CSS', 'weight' => 0.2],
                     ['name' => 'JavaScript', 'weight' => 0.2],
-                ]
+                ],
             ],
         ];
 
-        foreach ($projects as $projectData) {
+        $semesters = ['first', 'second', 'summer'];
+
+        foreach ($projects as $i => $projectData) {
             $project = Project::create([
                 'title' => $projectData['title'],
                 'description' => $projectData['description'],
                 'type_id' => $typeMap[$projectData['type_name']] ?? null,
                 'difficulty_level' => $projectData['difficulty_level'],
+                'academic_year' => '2025-2026',
+                'semester' => $semesters[$i % 2],
                 'supervisor_id' => $advisor->id,
-                'status' => 'available',
+                // Mix current statuses so admin/advisor screens show variety.
+                'status' => $i % 3 === 0 ? 'in_progress' : 'available',
             ]);
 
             foreach ($projectData['skills'] as $skillData) {
@@ -166,6 +171,27 @@ class ProjectSeeder extends Seeder
                     ]);
                 }
             }
+        }
+
+        // Archive of previous years: completed projects for testing the archive view.
+        $archive = [
+            ['title' => 'نظام إدارة المخزون للمتاجر', 'type_name' => 'web_application', 'year' => '2024-2025', 'semester' => 'second', 'difficulty_level' => 3],
+            ['title' => 'تطبيق حجز المواعيد الطبية', 'type_name' => 'mobile_app', 'year' => '2024-2025', 'semester' => 'first', 'difficulty_level' => 3],
+            ['title' => 'نظام كشف الاحتيال بالمعاملات', 'type_name' => 'ai_system', 'year' => '2023-2024', 'semester' => 'second', 'difficulty_level' => 5],
+            ['title' => 'منصة إدارة الفعاليات الجامعية', 'type_name' => 'web_application', 'year' => '2023-2024', 'semester' => 'first', 'difficulty_level' => 4],
+        ];
+
+        foreach ($archive as $a) {
+            Project::create([
+                'title' => $a['title'],
+                'description' => 'مشروع تخرّج مكتمل من أرشيف السنوات السابقة.',
+                'type_id' => $typeMap[$a['type_name']] ?? null,
+                'difficulty_level' => $a['difficulty_level'],
+                'academic_year' => $a['year'],
+                'semester' => $a['semester'],
+                'supervisor_id' => $advisor->id,
+                'status' => 'completed',
+            ]);
         }
     }
 }

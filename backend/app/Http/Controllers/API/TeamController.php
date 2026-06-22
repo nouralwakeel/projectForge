@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\Team;
 use App\Models\TeamMember;
+use App\Models\UserNotification;
 use Illuminate\Http\Request;
 
 class TeamController extends Controller
@@ -16,7 +17,7 @@ class TeamController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $teams
+            'data' => $teams,
         ]);
     }
 
@@ -24,36 +25,45 @@ class TeamController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'project_id' => 'required|exists:projects,id'
+            'project_id' => 'required|exists:projects,id',
         ]);
 
         $team = Team::create([
             'name' => $request->name,
             'project_id' => $request->project_id,
-            'is_approved' => false
+            'is_approved' => false,
         ]);
 
         $student = Student::where('user_id', auth()->id())->first();
 
-        if (!$student) {
+        if (! $student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student profile not found'
+                'message' => 'Student profile not found',
             ], 404);
         }
 
         TeamMember::create([
             'team_id' => $team->id,
             'student_id' => $student->id,
-            'role_in_team' => 'leader'
+            'role_in_team' => 'leader',
         ]);
 
         $team->load(['project', 'members']);
 
+        // Notify the project's supervisor that a new team requests supervision.
+        UserNotification::createFor(
+            $team->project?->supervisor_id,
+            'team_request',
+            'طلب إشراف جديد',
+            "الفريق «{$team->name}» يطلب الإشراف على مشروع: ".($team->project?->title ?? ''),
+            ['team_id' => $team->id, 'project_id' => $team->project_id],
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Team created successfully',
-            'data' => $team
+            'data' => $team,
         ], 201);
     }
 
@@ -61,16 +71,16 @@ class TeamController extends Controller
     {
         $team = Team::with(['project', 'members.user'])->find($id);
 
-        if (!$team) {
+        if (! $team) {
             return response()->json([
                 'success' => false,
-                'message' => 'Team not found'
+                'message' => 'Team not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $team
+            'data' => $team,
         ]);
     }
 
@@ -78,16 +88,16 @@ class TeamController extends Controller
     {
         $team = Team::find($id);
 
-        if (!$team) {
+        if (! $team) {
             return response()->json([
                 'success' => false,
-                'message' => 'Team not found'
+                'message' => 'Team not found',
             ], 404);
         }
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'is_approved' => 'sometimes|required|boolean'
+            'is_approved' => 'sometimes|required|boolean',
         ]);
 
         $team->update($request->only(['name', 'is_approved']));
@@ -97,7 +107,7 @@ class TeamController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Team updated successfully',
-            'data' => $team
+            'data' => $team,
         ]);
     }
 
@@ -105,10 +115,10 @@ class TeamController extends Controller
     {
         $team = Team::find($id);
 
-        if (!$team) {
+        if (! $team) {
             return response()->json([
                 'success' => false,
-                'message' => 'Team not found'
+                'message' => 'Team not found',
             ], 404);
         }
 
@@ -116,7 +126,7 @@ class TeamController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Team deleted successfully'
+            'message' => 'Team deleted successfully',
         ]);
     }
 
@@ -124,10 +134,10 @@ class TeamController extends Controller
     {
         $team = Team::find($id);
 
-        if (!$team) {
+        if (! $team) {
             return response()->json([
                 'success' => false,
-                'message' => 'Team not found'
+                'message' => 'Team not found',
             ], 404);
         }
 
@@ -140,21 +150,21 @@ class TeamController extends Controller
         if ($existingMember) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are already a member of this team'
+                'message' => 'You are already a member of this team',
             ], 400);
         }
 
-        if (!$student) {
+        if (! $student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student profile not found'
+                'message' => 'Student profile not found',
             ], 404);
         }
 
         TeamMember::create([
             'team_id' => $team->id,
             'student_id' => $student->id,
-            'role_in_team' => 'member'
+            'role_in_team' => 'member',
         ]);
 
         $team->load(['project', 'members']);
@@ -162,7 +172,7 @@ class TeamController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Successfully joined the team',
-            'data' => $team
+            'data' => $team,
         ]);
     }
 }

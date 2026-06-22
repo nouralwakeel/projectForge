@@ -15,7 +15,7 @@ class StudentResource extends JsonResource
             'stud_num' => $this->stud_num,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'full_name' => $this->first_name . ' ' . $this->last_name,
+            'full_name' => $this->first_name.' '.$this->last_name,
             'gender' => $this->gender,
             'date_of_birth' => $this->date_of_birth?->format('Y-m-d'),
             'major' => new MajorResource($this->whenLoaded('major')),

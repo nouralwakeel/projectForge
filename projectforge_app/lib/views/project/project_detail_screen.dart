@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/project_controller.dart';
+import '../../controllers/team_controller.dart';
 import '../../config/app_constants.dart';
+import '../../config/app_theme.dart';
 import '../../app/routes/app_routes.dart';
 import '../../widgets/skill_chip.dart';
 
@@ -78,10 +80,76 @@ class ProjectDetailScreen extends StatelessWidget {
                   label: const Text('تقدير النجاح'),
                 )),
               ]),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showCreateTeamDialog(context, id, project.title),
+                  icon: const Icon(Icons.group_add),
+                  label: const Text('إنشاء فريق لهذا المشروع'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: AppTheme.onPrimary,
+                    minimumSize: const Size(0, 48),
+                  ),
+                ),
+              ),
             ],
           ),
         );
       }),
+    );
+  }
+
+  void _showCreateTeamDialog(BuildContext context, int projectId, String projectTitle) {
+    final nameCtrl = TextEditingController();
+    final teamController = Get.isRegistered<TeamController>()
+        ? Get.find<TeamController>()
+        : Get.put(TeamController());
+
+    Get.dialog(
+      Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: const Text('إنشاء فريق'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('للمشروع: $projectTitle',
+                  style: const TextStyle(fontSize: 13, color: AppTheme.onSurfaceVariant)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: nameCtrl,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'اسم الفريق',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Get.back(), child: const Text('إلغاء')),
+            ElevatedButton(
+              onPressed: () async {
+                final name = nameCtrl.text.trim();
+                if (name.isEmpty) {
+                  Get.snackbar('تنبيه', 'أدخل اسم الفريق');
+                  return;
+                }
+                Get.back();
+                final ok = await teamController.createTeam(name, projectId);
+                if (ok) {
+                  Get.snackbar('تم', 'تم إنشاء الفريق وإرسال طلب الإشراف');
+                  Get.toNamed(AppRoutes.teams);
+                }
+              },
+              child: const Text('إنشاء'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

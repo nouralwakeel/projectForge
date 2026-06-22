@@ -14,10 +14,10 @@ class RecommendationController extends Controller
         $user = auth()->user();
         $student = $user->student;
 
-        if (!$student) {
+        if (! $student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student profile not found'
+                'message' => 'Student profile not found',
             ], 404);
         }
 
@@ -29,7 +29,7 @@ class RecommendationController extends Controller
         if ($studentSkills->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please complete your skills survey first'
+                'message' => 'Please complete your skills survey first',
             ], 400);
         }
 
@@ -41,12 +41,12 @@ class RecommendationController extends Controller
 
         foreach ($projects as $project) {
             $matchScore = $this->calculateMatchScore($project, $studentSkills);
-            
+
             if ($matchScore > 0) {
                 $recommendations[] = [
                     'project' => $project,
                     'match_score' => $matchScore,
-                    'match_percentage' => round($matchScore * 100, 2)
+                    'match_percentage' => round($matchScore * 100, 2),
                 ];
             }
         }
@@ -59,7 +59,7 @@ class RecommendationController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $recommendations
+            'data' => $recommendations,
         ]);
     }
 

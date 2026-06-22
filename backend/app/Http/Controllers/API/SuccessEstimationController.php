@@ -8,7 +8,6 @@ use App\Models\StudentSkill;
 use App\Models\SuccessEstimation;
 use App\Models\Team;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class SuccessEstimationController extends Controller
 {
@@ -18,17 +17,17 @@ class SuccessEstimationController extends Controller
         $student = $user->student;
         $project = Project::with('skills')->find($projectId);
 
-        if (!$project) {
+        if (! $project) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project not found'
+                'message' => 'Project not found',
             ], 404);
         }
 
-        if (!$student) {
+        if (! $student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student profile not found'
+                'message' => 'Student profile not found',
             ], 404);
         }
 
@@ -52,8 +51,8 @@ class SuccessEstimationController extends Controller
             'factors_log' => json_encode([
                 'skill_coverage' => round($skillCoverage * 100, 2),
                 'team_balance' => round($teamBalance * 100, 2),
-                'difficulty_factor' => round($difficultyFactor * 100, 2)
-            ])
+                'difficulty_factor' => round($difficultyFactor * 100, 2),
+            ]),
         ]);
 
         return response()->json([
@@ -63,11 +62,11 @@ class SuccessEstimationController extends Controller
                 'factors' => [
                     'skill_coverage' => round($skillCoverage * 100, 2),
                     'team_balance' => round($teamBalance * 100, 2),
-                    'difficulty_factor' => round($difficultyFactor * 100, 2)
+                    'difficulty_factor' => round($difficultyFactor * 100, 2),
                 ],
                 'difficulty_level' => $project->difficulty_level,
-                'estimation_id' => $estimation->id
-            ]
+                'estimation_id' => $estimation->id,
+            ],
         ]);
     }
 
@@ -75,19 +74,19 @@ class SuccessEstimationController extends Controller
     {
         $team = Team::with(['members.skills', 'project.skills'])->find($teamId);
 
-        if (!$team) {
+        if (! $team) {
             return response()->json([
                 'success' => false,
-                'message' => 'Team not found'
+                'message' => 'Team not found',
             ], 404);
         }
 
         $project = $team->project;
 
-        if (!$project) {
+        if (! $project) {
             return response()->json([
                 'success' => false,
-                'message' => 'Team has no project assigned'
+                'message' => 'Team has no project assigned',
             ], 400);
         }
 
@@ -122,8 +121,8 @@ class SuccessEstimationController extends Controller
             'factors_log' => json_encode([
                 'skill_coverage' => round($skillCoverage * 100, 2),
                 'team_balance' => round($teamBalance * 100, 2),
-                'difficulty_factor' => round($difficultyFactor * 100, 2)
-            ])
+                'difficulty_factor' => round($difficultyFactor * 100, 2),
+            ]),
         ]);
 
         return response()->json([
@@ -133,12 +132,12 @@ class SuccessEstimationController extends Controller
                 'factors' => [
                     'skill_coverage' => round($skillCoverage * 100, 2),
                     'team_balance' => round($teamBalance * 100, 2),
-                    'difficulty_factor' => round($difficultyFactor * 100, 2)
+                    'difficulty_factor' => round($difficultyFactor * 100, 2),
                 ],
                 'team_size' => $team->members->count(),
                 'difficulty_level' => $project->difficulty_level,
-                'estimation_id' => $estimation->id
-            ]
+                'estimation_id' => $estimation->id,
+            ],
         ]);
     }
 

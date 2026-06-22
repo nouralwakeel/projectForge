@@ -128,7 +128,7 @@ class SkillController extends GetxController {
       });
 
       if (response.data['success'] == true) {
-        Get.offAllNamed('/dashboard');
+        Get.offAllNamed('/home');
         return true;
       } else {
         final msg = response.data['message'] ?? 'فشل في حفظ المهارات';
